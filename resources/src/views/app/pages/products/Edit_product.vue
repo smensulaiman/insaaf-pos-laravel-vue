@@ -12,8 +12,8 @@
 
                 <b-modal hide-footer id="open_scan" size="md" title="Barcode Scanner">
                   <qrcode-scanner
-                    :qrbox="250" 
-                    :fps="10" 
+                    :qrbox="250"
+                    :fps="10"
                     style="width: 100%; height: calc(100vh - 56px);"
                     @result="onScan"
                   />
@@ -93,7 +93,7 @@
                       <div class="input-group">
                          <!-- Input group prepend -->
                          <div class="input-group-prepend">
-                          <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
+                          <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
                         </div>
                         <b-form-input
                           :class="{'is-invalid': !!errors.length}"
@@ -268,7 +268,7 @@
                                 <td class="text-right">{{currentUser.currency}} {{formatNumber(materiel.cost * materiel.quantity, 2)}}</td>
 
                                 <td class="text-right">
-                                  
+
                                     <a
                                       style="color: #ffff;"
                                       @click="delete_materiel(materiel.product_id)"
@@ -301,7 +301,7 @@
 
             <b-card class="mt-3">
               <b-row>
-              
+
                  <!-- type -->
 
                 <b-col md="6" class="mb-2" v-if="product.type == 'is_single'">
@@ -549,7 +549,7 @@
                 <!-- Warranty & Guarantee Tracking -->
                 <!-- Warranty Period + Unit -->
                 <b-col md="6" class="mb-2">
-                 
+
                     <b-form-group :label="$t('Warranty_Period')">
                       <b-input-group>
                         <b-form-input
@@ -565,7 +565,7 @@
                           ]"
                         ></b-form-select>
                       </b-input-group>
-                    
+
                     </b-form-group>
                 </b-col>
 
@@ -596,7 +596,7 @@
 
                 <!-- Guarantee Period + Unit -->
                 <b-col md="6" class="mb-2" v-if="product.has_guarantee">
-                 
+
                     <b-form-group :label="$t('Guarantee_Period')">
                       <b-input-group>
                         <b-form-input
@@ -617,7 +617,7 @@
 
               </b-row>
             </b-card>
-           
+
             <b-card class="mt-3">
               <b-row>
                 <!-- Product_Has_Imei_Serial_number -->
@@ -815,7 +815,7 @@ export default {
             this.materiels.some(detail => detail.code === result.code)
         ) {
             toastr.error('Product_Already_added');
-            
+
         } else {
 
             var materiel_tag = {
@@ -827,7 +827,7 @@ export default {
                 quantity:1,
             }
             this.materiels.push(materiel_tag);
-            
+
         }
         this.search_input= '';
         this.$refs.product_autocomplete.value = "";
@@ -848,7 +848,7 @@ export default {
 
     showModal() {
       this.$bvModal.show('open_scan');
-      
+
     },
 
     onScan (decodedText, decodedResult) {
@@ -867,7 +867,7 @@ export default {
             (Math.pow(10, 8) - Math.pow(10, 7) - 1)
       );
     },
-    
+
     //------------- Submit Validation Update Product
     Submit_Product() {
       this.$refs.Edit_Product.validate().then(success => {
@@ -927,7 +927,7 @@ export default {
               "Please Enter the Variant",
               this.$t("Warning")
             );
-            
+
           }
       }
     },
@@ -985,7 +985,7 @@ export default {
 
     //------------------------------ Update Product ------------------------------\\
     Update_Product() {
-      
+
       NProgress.start();
       NProgress.set(0.1);
       var self = this;
@@ -1003,12 +1003,12 @@ export default {
           self.data.append(key, value);
       });
 
-      
+
        // append array variants
        if (self.materiels.length && self.product.type == 'is_combo') {
         self.data.append("materiels", JSON.stringify(self.materiels));
       }
-                
+
       //append array variants
       if (self.variants.length) {
           for (var i = 0; i < self.variants.length; i++) {

@@ -1,5 +1,6 @@
 <?php
 
+use Database\Seeders\TranslationSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -23,7 +24,8 @@ class DatabaseSeeder extends Seeder
             UserRoleSeeder::class,
             PermissionRoleSeeder::class,
             Warehouse::class,
+            TranslationSeeder::class,
         ]);
-        
+
     }
 }

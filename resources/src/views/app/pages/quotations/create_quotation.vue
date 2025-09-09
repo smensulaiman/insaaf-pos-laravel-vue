@@ -11,8 +11,8 @@
 
                 <b-modal hide-footer id="open_scan" size="md" title="Barcode Scanner">
                   <qrcode-scanner
-                    :qrbox="250" 
-                    :fps="10" 
+                    :qrbox="250"
+                    :fps="10"
                     style="width: 100%; height: calc(100vh - 56px);"
                     @result="onScan"
                   />
@@ -77,13 +77,13 @@
                  <!-- Product -->
                 <b-col md="12" class="mb-5">
                   <h6>{{$t('ProductName')}}</h6>
-                 
+
                   <div id="autocomplete" class="autocomplete">
                     <div class="input-with-icon">
-                      <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
-                    <input 
+                      <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
+                    <input
                      :placeholder="$t('Scan_Search_Product_by_Code_Name')"
-                       @input='e => search_input = e.target.value' 
+                       @input='e => search_input = e.target.value'
                       @keyup="search(search_input)"
                       @focus="handleFocus"
                       @blur="handleBlur"
@@ -553,10 +553,10 @@ export default {
       this.focused = false
     },
 
-       
+
     showModal() {
       this.$bvModal.show('open_scan');
-      
+
     },
 
     onScan (decodedText, decodedResult) {
@@ -566,7 +566,7 @@ export default {
       this.$bvModal.hide('open_scan');
     },
 
-    
+
     //--- Submit Validate Create Quotation
     Submit_Quotation() {
       this.$refs.create_quote.validate().then(success => {
@@ -642,7 +642,7 @@ export default {
     },
 
 
-   
+
     //------ Submit Update Detail Product
 
     Update_Detail() {
@@ -665,14 +665,14 @@ export default {
                 }
               }
             }
-         
+
 
             if (this.details[i].stock < this.details[i].quantity) {
               this.details[i].quantity = this.details[i].stock;
             } else {
               this.details[i].quantity =1;
             }
-          
+
           this.details[i].Unit_price = this.detail.Unit_price;
           this.details[i].tax_percent = this.detail.tax_percent;
           this.details[i].tax_method = this.detail.tax_method;

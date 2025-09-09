@@ -7,8 +7,8 @@
 
         <b-modal hide-footer id="open_scan" size="md" title="Barcode Scanner">
           <qrcode-scanner
-            :qrbox="250" 
-            :fps="10" 
+            :qrbox="250"
+            :fps="10"
             style="width: 100%; height: calc(100vh - 56px);"
             @result="onScan"
           />
@@ -37,13 +37,13 @@
           <!-- Product -->
           <b-col md="12" class="mb-5">
             <h6>{{$t('ProductName')}}</h6>
-            
+
             <div id="autocomplete" class="autocomplete">
               <div class="input-with-icon">
-                      <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
-              <input 
+                      <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
+              <input
                 :placeholder="$t('Scan_Search_Product_by_Code_Name')"
-                @input='e => search_input = e.target.value' 
+                @input='e => search_input = e.target.value'
                 @keyup="search(search_input)"
                 @focus="handleFocus"
                 @blur="handleBlur"
@@ -119,7 +119,7 @@
             </b-form-group>
           </b-col>
 
-          
+
           <b-col md="6" class="mt-4">
               <label class="checkbox checkbox-primary mb-3"><input type="checkbox" v-model="show_price"><h5>Display Price </h5><span class="checkmark"></span></label>
           </b-col>
@@ -143,8 +143,8 @@
             {{$t('print')}}
           </button>
         </b-col>
-      
-   
+
+
         <b-col md="12">
           <div class="barcode-row" v-if="ShowCard" id="print_barcode_label">
             <div v-for="(page, pageIndex) in pages" :key="pageIndex">
@@ -174,7 +174,7 @@
 
           </b-row>
           </div>
-      
+
 </template>
 
 <script>
@@ -205,7 +205,7 @@ export default {
       total_a4:'',
       class_sheet:'',
       class_type_page:'',
-      rest:'',     
+      rest:'',
       warehouses: [],
       submitStatus: null,
       show_price:true,
@@ -230,7 +230,7 @@ export default {
 
     showModal() {
       this.$bvModal.show('open_scan');
-      
+
     },
 
     onScan (decodedText, decodedResult) {
@@ -283,7 +283,7 @@ export default {
         this.class_sheet = 'customstyle';
        this.class_type_page = 'barcode_custom';
       }
-     
+
       this.Per_Page();
     },
     //------ Validate Form
@@ -292,7 +292,7 @@ export default {
         if (!success) {
           return;
         } else {
-         
+
           this.showBarcode();
           // this.Per_Page();
         }
@@ -317,7 +317,7 @@ export default {
         }
       }
     },
-    
+
    // Search Products
     search(){
       if (this.timer) {
@@ -337,7 +337,7 @@ export default {
                 this.product_filter=  this.products.filter(product => {
 
                   return tokens.every(token =>
-                      product.name.toLowerCase().includes(token) 
+                      product.name.toLowerCase().includes(token)
                       ||  product.code.toLowerCase().includes(token)
                       ||  product.barcode.toLowerCase().includes(token)
                       ||  (product.note && product.note.toLowerCase().includes(token))
@@ -372,7 +372,7 @@ export default {
     getResultValue(result) {
       return result.code + " " + "(" + result.name + ")";
     },
-   
+
      //------ Submit Search Product
      SearchProduct(result) {
       const existingProduct = this.products_added.find(product => product.code === result.code);
@@ -432,7 +432,7 @@ export default {
          a.print();
       }, 1000);
 
-      
+
     },
 
     generatePages() {
@@ -453,7 +453,7 @@ export default {
         this.pages.push(allBarcodes.splice(0, this.sheets));
       }
     },
-   
+
     //-------------------------------------- Show Barcode -------------------------\\
     showBarcode() {
       // this.Per_Page();

@@ -12,8 +12,8 @@
 
                 <b-modal hide-footer id="open_scan" size="md" title="Barcode Scanner">
                   <qrcode-scanner
-                    :qrbox="250" 
-                    :fps="10" 
+                    :qrbox="250"
+                    :fps="10"
                     style="width: 100%; height: calc(100vh - 56px);"
                     @result="onScan"
                   />
@@ -85,7 +85,7 @@
                 <!-- Code Product"-->
                 <b-col md="6" class="mb-2">
                   <validation-provider name="Code Product" :rules="{ required: true}">
-                    
+
                     <b-form-group
                       slot-scope="{ valid, errors }"
                       :label="$t('CodeProduct') + ' ' + '*'"
@@ -93,7 +93,7 @@
                       <div class="input-group">
                         <!-- Input group prepend -->
                         <div class="input-group-prepend">
-                          <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
+                          <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
                         </div>
                         <b-form-input
                           :class="{'is-invalid': !!errors.length}"
@@ -268,7 +268,7 @@
                                 <td class="text-right">{{currentUser.currency}} {{formatNumber(materiel.cost * materiel.quantity, 2)}}</td>
 
                                 <td class="text-right">
-                                  
+
                                     <a
                                       style="color: #ffff;"
                                       @click="delete_materiel(materiel.product_id)"
@@ -459,7 +459,7 @@
                   </validation-provider>
                 </b-col>
 
-             
+
 
                 <div class="col-md-12 mb-3 mt-3" v-if="product.type == 'is_variant'">
                   <div class="d-flex">
@@ -533,7 +533,7 @@
                 <!-- Warranty & Guarantee Tracking -->
                 <!-- Warranty Period + Unit -->
                 <b-col md="6" class="mb-2">
-                 
+
                     <b-form-group :label="$t('Warranty_Period')">
                       <b-input-group>
                         <b-form-input
@@ -549,7 +549,7 @@
                           ]"
                         ></b-form-select>
                       </b-input-group>
-                    
+
                     </b-form-group>
                 </b-col>
 
@@ -580,7 +580,7 @@
 
                 <!-- Guarantee Period + Unit -->
                 <b-col md="6" class="mb-2" v-if="product.has_guarantee">
-                 
+
                     <b-form-group :label="$t('Guarantee_Period')">
                       <b-input-group>
                         <b-form-input
@@ -625,7 +625,7 @@
               </b-row>
             </b-card>
 
-           
+
             <b-card class="mt-3" v-if="product.type != 'is_combo'">
               <b-row>
                 <!-- Product_Has_Imei_Serial_number -->
@@ -685,7 +685,7 @@ export default {
       timer:null,
       search_input:'',
       product_filter:[],
-      warehouses: [],   
+      warehouses: [],
       tag: "",
       len: 8,
       change: false,
@@ -761,7 +761,7 @@ export default {
       return `${value[0]}.${formated}`;
     },
 
-    
+
       //---------------------- Event Selected_product_type------------------------------\\
       Selected_Type_Product(value) {
 
@@ -838,7 +838,7 @@ export default {
           this.materiels.some(detail => detail.code === result.code)
       ) {
           toastr.error('Product_Already_added');
-          
+
       } else {
 
           var materiel_tag = {
@@ -850,7 +850,7 @@ export default {
               quantity:1,
           }
           this.materiels.push(materiel_tag);
-          
+
       }
       this.search_input= '';
       this.$refs.product_autocomplete.value = "";
@@ -871,7 +871,7 @@ export default {
 
     showModal() {
       this.$bvModal.show('open_scan');
-      
+
     },
 
     onScan (decodedText, decodedResult) {
@@ -913,7 +913,7 @@ export default {
       });
     },
 
-    
+
 
     add_variant(tag) {
       if (
@@ -940,13 +940,13 @@ export default {
               "Please Enter the Variant",
               this.$t("Warning")
             );
-            
+
           }
       }
     },
     //-----------------------------------Delete variant------------------------------\\
     delete_variant(var_id) {
-      
+
       for (var i = 0; i < this.variants.length; i++) {
         if (var_id === this.variants[i].var_id) {
           this.variants.splice(i, 1);
@@ -1031,7 +1031,7 @@ export default {
         self.data.append("materiels", JSON.stringify(self.materiels));
       }
 
-           
+
       // append objet product
       Object.entries(self.product).forEach(([key, value]) => {
           self.data.append(key, value);
@@ -1049,7 +1049,7 @@ export default {
           JSON.stringify(self.product.warehouses)
         );
       }
-   
+
       // Send Data with axios
       axios
         .post("products", self.data)

@@ -12,8 +12,8 @@
 
                 <b-modal hide-footer id="open_scan" size="md" title="Barcode Scanner">
                   <qrcode-scanner
-                    :qrbox="250" 
-                    :fps="10" 
+                    :qrbox="250"
+                    :fps="10"
                     style="width: 100%; height: calc(100vh - 56px);"
                     @result="onScan"
                   />
@@ -78,13 +78,13 @@
                    <!-- Product -->
                 <b-col md="12" class="mb-5">
                   <h6>{{$t('ProductName')}}</h6>
-                 
+
                   <div id="autocomplete" class="autocomplete">
                     <div class="input-with-icon">
-                      <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
-                    <input 
+                      <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
+                    <input
                      :placeholder="$t('Scan_Search_Product_by_Code_Name')"
-                       @input='e => search_input = e.target.value' 
+                       @input='e => search_input = e.target.value'
                       @keyup="search(search_input)"
                       @focus="handleFocus"
                       @blur="handleBlur"
@@ -127,7 +127,7 @@
                             <span>{{detail.code}}</span>
                             <br>
                             <span class="badge badge-success">{{detail.name}}</span>
-                           
+
                           </td>
                           <td>{{currentUser.currency}} {{formatNumber(detail.Net_price, 3)}}</td>
                           <td>
@@ -679,7 +679,7 @@ export default {
 
     showModal() {
       this.$bvModal.show('open_scan');
-      
+
     },
 
     onScan (decodedText, decodedResult) {
@@ -689,7 +689,7 @@ export default {
       this.$bvModal.hide('open_scan');
     },
 
-    
+
     //--- Submit Validate Create Sale
     Submit_Sale() {
       this.$refs.create_sale.validate().then(success => {
@@ -801,13 +801,13 @@ export default {
                 }
               }
             }
-                    
+
             if (this.details[i].stock < this.details[i].quantity) {
             this.details[i].quantity = this.details[i].stock;
             } else {
               this.details[i].quantity =1;
             }
-          
+
           this.details[i].Unit_price = this.detail.Unit_price;
           this.details[i].tax_percent = this.detail.tax_percent;
           this.details[i].tax_method = this.detail.tax_method;
@@ -911,8 +911,8 @@ export default {
           //   this.product_filter = [];
 
           // }
-          
-          
+
+
           // Regular product search (for non-weighing scale barcodes)
           const product_filter = this.products.filter(product => product.code === this.search_input || product.barcode.includes(this.search_input));
               if(product_filter.length === 1){
@@ -945,7 +945,7 @@ export default {
           this.payment.received_amount = 0;
           this.payment.account_id = NULL;
         }
-    
+
     },
 
       //---------------------- Event Select Payment Status ------------------------------\\
@@ -974,7 +974,7 @@ export default {
             this.$t("Warning")
           );
           this.payment.amount = 0;
-        } 
+        }
         else if (this.payment.amount > this.GrandTotal) {
           this.makeToast(
             "warning",
@@ -991,7 +991,7 @@ export default {
     Verified_Received_Amount() {
       if (isNaN(this.payment.received_amount)) {
         this.payment.received_amount = 0;
-      } 
+      }
     },
 
 
@@ -1019,7 +1019,7 @@ export default {
             this.product.code = result.code;
             this.product.stock = result.qte_sale;
             this.product.fix_stock = result.qte;
-            
+
               // Check if it's a weighing scale product
               if (weight !== null) {
                 this.product.quantity = weight; // Assign extracted weight
