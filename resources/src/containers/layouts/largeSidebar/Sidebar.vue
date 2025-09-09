@@ -24,6 +24,7 @@
               <span class="nav-text">{{ $t("dashboard") }}</span>
             </router-link>
           </li>
+
           <li
             v-show="currentUserPermissions
             && (currentUserPermissions.includes('products_add')
@@ -34,18 +35,18 @@
              || currentUserPermissions.includes('unit')
              || currentUserPermissions.includes('count_stock')
              || currentUserPermissions.includes('category'))"
-            @mouseenter="toggleSubMenu"
             class="nav-item"
             :class="{ active: selectedParentMenu == 'products' }"
             data-item="products"
             :data-submenu="true"
           >
-            <a class="nav-item-hold" href="#">
+            <a class="" href="#">
               <i class="nav-icon i-Library-2"></i>
               <span class="nav-text">{{$t('Products')}}</span>
             </a>
             <div class="triangle"></div>
           </li>
+
           <li
             v-show="currentUserPermissions
               && (currentUserPermissions.includes('adjustment_view')
@@ -1253,13 +1254,19 @@
               <span class="item-name">{{$t('Error_Logs')}}</span>
             </router-link>
           </li>
+
+
+
+
+
         </ul>
       </div>
     </vue-perfect-scrollbar>
     <div
       @click="removeOverlay()"
       class="sidebar-overlay"
-      :class="{ open: getSideBarToggleProperties.isSecondarySideNavOpen }"></div>
+      :class="{ open: getSideBarToggleProperties.isSecondarySideNavOpen }"
+    ></div>
   </div>
   <!--=============== Left side End ================-->
 </template>
@@ -1322,7 +1329,6 @@ export default {
                 }
             }
         },
-
         toggleSelectedParentMenu() {
             const currentParentUrl = this.$route.path
                 .split("/")
@@ -1333,7 +1339,6 @@ export default {
                 this.selectedParentMenu = "dashboard";
             }
         },
-
         toggleSubMenu(e) {
             let hasSubmenu = e.target.dataset.submenu;
             let parent = e.target.dataset.item;
@@ -1355,7 +1360,6 @@ export default {
             }
             this.toggleSelectedParentMenu();
         },
-
         returnSelectedParentMenu() {
             if (!this.isMenuOver) {
                 this.toggleSelectedParentMenu();

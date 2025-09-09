@@ -82,7 +82,7 @@ Vue.component('qrcode-scanner', {
 
 });
 
-import InsaafKit from "./plugins/Insaaf.kit";
+import InsaafKit from "./plugins/insaaf.kit";
 Vue.use(InsaafKit);
 import VueCookies from 'vue-cookies'
 Vue.use(VueCookies);
