@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use App\Models\PaymentSale;
-use App\Models\product_warehouse;
+use App\Models\ProductWarehouse;
 use App\Models\ErrorLog;
 use Illuminate\Support\Str;
 
@@ -44,7 +44,7 @@ class GenerateSubscriptionInvoices extends Command
             ]);
 
             // 2. Decrease product stock
-            $productWarehouse = product_warehouse::where('warehouse_id', $subscription->warehouse_id)
+            $productWarehouse = ProductWarehouse::where('warehouse_id', $subscription->warehouse_id)
                 ->where('product_id', $subscription->product_id)
                 ->whereNull('deleted_at')
                 ->first();
@@ -59,7 +59,7 @@ class GenerateSubscriptionInvoices extends Command
 
 
             // 4. Send SMS on successful charge
-           
+
             try {
                 app('App\Http\Controllers\SalesController')->Send_Subscription_Payment_Success_SMS($subscription->id, $invoice->id);
                 Log::info("SMS sent after successful payment for subscription #{$subscription->id}");

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class product_warehouse extends Model
+class ProductWareHouse extends Model
 {
     protected $table = 'product_warehouse';
 
@@ -21,17 +21,17 @@ class product_warehouse extends Model
 
     public function warehouse()
     {
-        return $this->belongsTo('App\Models\Warehouse');
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function product()
     {
-        return $this->belongsTo('App\Models\Product');
+        return $this->belongsTo(Product::class);
     }
 
     public function productVariant()
     {
-        return $this->belongsTo('App\Models\ProductVariant');
+        return $this->belongsTo(ProductVariant::class);
     }
 
 }

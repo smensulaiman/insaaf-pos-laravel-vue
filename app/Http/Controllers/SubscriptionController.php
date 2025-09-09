@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\Client;
 use App\Models\Warehouse;
 use App\Models\PaymentSale;
-use App\Models\product_warehouse;
+use App\Models\ProductWarehouse;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -92,16 +92,16 @@ class SubscriptionController extends BaseController
             'warehouses'      => $warehouses,
         ]);
 
-    
+
     }
-    
+
 
     //-------------- Store New  ---------------\\
 
     public function store(Request $request)
     {
         $this->authorizeForUser($request->user('api'), 'create', Subscription::class);
-    
+
         $validatedData = $request->validate([
             'subscription.client_id'       => 'required|exists:clients,id',
             'subscription.product_id'      => 'required|exists:products,id',
@@ -116,7 +116,7 @@ class SubscriptionController extends BaseController
             'subscription.status'            => 'required|in:active,canceled,completed',
 
         ]);
-    
+
         $data = $validatedData['subscription'];
 
          // Calculate remaining cycles
@@ -145,7 +145,7 @@ class SubscriptionController extends BaseController
             'status'            => $data['status'],
         ]);
 
-        
+
         // Check if next billing date is today, generate invoice immediately
         if (Carbon::parse($subscription->next_billing_date)->isToday()) {
             $subscription->generateInvoice();
@@ -166,19 +166,19 @@ class SubscriptionController extends BaseController
             'monthly' => 30.4375, // Average month duration
             'weekly' => 7,
         ];
-    
+
         // Get the total duration in days based on the cycle type (how long the subscription lasts)
         $total_duration = $total_cycles * ($durations[$cycle_type] ?? 1);
-    
+
         // Get the billing cycle duration in days (how often the customer pays)
         $billing_duration = $durations[$billing_cycle] ?? 1;
-    
+
         // Calculate how many payments the user needs to make
         $remaining_cycles = intval($total_duration / $billing_duration);
-    
+
         return max($remaining_cycles, 1); // Ensure at least 1 cycle
     }
-    
+
 
     //------------ function show -----------\\
 
@@ -189,7 +189,7 @@ class SubscriptionController extends BaseController
 
 
         $subscription = Subscription::with(['client', 'product', 'warehouse', 'invoices'])->findOrFail($id);
-    
+
         return response()->json([
             'subscription' => [
                 'id' => $subscription->id,
@@ -218,13 +218,13 @@ class SubscriptionController extends BaseController
             ],
         ]);
     }
-    
+
 
     //-------------- Update ---------------\\
 
     public function update(Request $request, $id)
     {
-        // 
+        //
 
     }
 
@@ -233,7 +233,7 @@ class SubscriptionController extends BaseController
     public function destroy(Request $request, $id)
     {
         $this->authorizeForUser($request->user('api'), 'delete', Subscription::class);
-        
+
         Subscription::whereId($id)->update([
             'deleted_at' => Carbon::now(),
         ]);
@@ -247,12 +247,12 @@ class SubscriptionController extends BaseController
         $request->validate([
             'status' => 'required|in:active,canceled,completed',
         ]);
-    
+
         $subscription = Subscription::findOrFail($id);
         $subscription->update([
             'status' => $request->status,
         ]);
-    
+
         return response()->json(['message' => 'Subscription status updated successfully!']);
     }
 

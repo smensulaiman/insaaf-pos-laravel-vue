@@ -8,7 +8,7 @@ use App\Models\Adjustment;
 use App\Models\AdjustmentDetail;
 use App\Models\ProductVariant;
 use App\Models\Product;
-use App\Models\product_warehouse;
+use App\Models\ProductWarehouse;
 use App\Models\CombinedProduct;
 use App\Models\Role;
 use App\Models\Warehouse;
@@ -108,7 +108,7 @@ class AdjustmentController extends BaseController
 
         $this->authorizeForUser($request->user('api'), 'create', Adjustment::class);
 
-        
+
              // define validation rules
              $productionRules = [
                 'warehouse_id' => 'required',
@@ -118,7 +118,7 @@ class AdjustmentController extends BaseController
             $productionRules['details'] = [
                 'required',
                 function ($attribute, $value, $fail) use ($request) {
-                   
+
                     $products_data = $request['details'];
 
 
@@ -131,23 +131,23 @@ class AdjustmentController extends BaseController
                         if($product_detail->type == 'is_combo'){
 
                             $combined_products = CombinedProduct::where('product_id', $value['product_id'])->with('product')->get();
-                        
+
                             foreach ($combined_products as $combined_product) {
-                        
-                                $total_stock = product_warehouse::where('deleted_at', '=', null)
+
+                                $total_stock = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $request->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-                        
+
                                 $unit_qty = $combined_product->quantity;
-                        
+
                                 if($unit_qty * $value['quantity'] > $total_stock->qte){
                                     $fail('stock insuffisant pour le produit '.' '.$product_detail->name);
                                     return;
                                 }
-                        
+
                             }
-                        
+
                         }
 
 
@@ -186,7 +186,7 @@ class AdjustmentController extends BaseController
 
                 if ($value['type'] == "add") {
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $order->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->where('product_variant_id', $value['product_variant_id'])
@@ -204,11 +204,11 @@ class AdjustmentController extends BaseController
 
                             if($product_detail->type == 'is_single'){
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                     ->where('warehouse_id', $order->warehouse_id)
                                     ->where('product_id', $value['product_id'])
                                     ->first();
-        
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $value['quantity'];
                                     $product_warehouse->save();
@@ -221,11 +221,11 @@ class AdjustmentController extends BaseController
 
                                     $qty_combined = $combined_product->quantity * $value['quantity'];
 
-                                    $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                    $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                     ->where('warehouse_id', $order->warehouse_id)
                                     ->where('product_id', $combined_product->combined_product_id)
                                     ->first();
-        
+
                                     if ($product_warehouse) {
                                         $product_warehouse->qte -= $qty_combined;
                                         $product_warehouse->save();
@@ -233,11 +233,11 @@ class AdjustmentController extends BaseController
 
                                 }
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                     ->where('warehouse_id', $order->warehouse_id)
                                     ->where('product_id', $value['product_id'])
                                     ->first();
-        
+
                                     if ($product_warehouse) {
                                         $product_warehouse->qte += $value['quantity'];
                                         $product_warehouse->save();
@@ -249,7 +249,7 @@ class AdjustmentController extends BaseController
                 } else {
 
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $order->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->where('product_variant_id', $value['product_variant_id'])
@@ -261,18 +261,18 @@ class AdjustmentController extends BaseController
                         }
 
                     } else {
-                        
+
                         $product_detail = Product::where('deleted_at', '=', null)
                         ->where('id', $value['product_id'])
                         ->first();
 
                         if($product_detail->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $order->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte -= $value['quantity'];
                                 $product_warehouse->save();
@@ -285,11 +285,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $value['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $order->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $qty_combined;
                                     $product_warehouse->save();
@@ -297,11 +297,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $order->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $value['quantity'];
                                     $product_warehouse->save();
@@ -365,7 +365,7 @@ class AdjustmentController extends BaseController
                 if ($value['type'] == "add") {
 
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $current_adjustment->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->where('product_variant_id', $value['product_variant_id'])
@@ -378,18 +378,18 @@ class AdjustmentController extends BaseController
 
                     } else {
 
-                      
+
                         $product_detail = Product::where('deleted_at', '=', null)
                         ->where('id', $value['product_id'])
                         ->first();
 
                         if($product_detail->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id',  $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte -= $value['quantity'];
                                 $product_warehouse->save();
@@ -402,11 +402,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $value['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $qty_combined;
                                     $product_warehouse->save();
@@ -414,11 +414,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $value['quantity'];
                                     $product_warehouse->save();
@@ -426,12 +426,12 @@ class AdjustmentController extends BaseController
 
 
                         }
-                    
-                       
+
+
                     }
                 } else {
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $current_adjustment->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->where('product_variant_id', $value['product_variant_id'])
@@ -443,18 +443,18 @@ class AdjustmentController extends BaseController
                         }
 
                     } else {
-                        
+
                         $product_detail = Product::where('deleted_at', '=', null)
                         ->where('id', $value['product_id'])
                         ->first();
 
                         if($product_detail->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id',  $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte += $value['quantity'];
                                 $product_warehouse->save();
@@ -467,11 +467,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $value['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $qty_combined;
                                     $product_warehouse->save();
@@ -479,11 +479,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $value['quantity'];
                                     $product_warehouse->save();
@@ -507,7 +507,7 @@ class AdjustmentController extends BaseController
                 if ($product_detail['type'] == "add") {
 
                     if ($product_detail['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $request->warehouse_id)
                             ->where('product_id', $product_detail['product_id'])
                             ->where('product_variant_id', $product_detail['product_variant_id'])
@@ -519,18 +519,18 @@ class AdjustmentController extends BaseController
                         }
 
                     } else {
-                       
+
                         $product_detail_type = Product::where('deleted_at', '=', null)
                         ->where('id', $product_detail['product_id'])
                         ->first();
 
                         if($product_detail_type->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id',  $request->warehouse_id)
                                 ->where('product_id', $product_detail['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte += $product_detail['quantity'];
                                 $product_warehouse->save();
@@ -543,11 +543,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $product_detail['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $request->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $qty_combined;
                                     $product_warehouse->save();
@@ -555,11 +555,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $request->warehouse_id)
                                 ->where('product_id', $product_detail['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $product_detail['quantity'];
                                     $product_warehouse->save();
@@ -570,7 +570,7 @@ class AdjustmentController extends BaseController
                     }
                 } else {
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $request->warehouse_id)
                             ->where('product_id', $product_detail['product_id'])
                             ->where('product_variant_id', $product_detail['product_variant_id'])
@@ -582,18 +582,18 @@ class AdjustmentController extends BaseController
                         }
 
                     } else {
-                        
+
                         $product_detail_type = Product::where('deleted_at', '=', null)
                         ->where('id', $product_detail['product_id'])
                         ->first();
 
                         if($product_detail_type->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id',  $request->warehouse_id)
                                 ->where('product_id', $product_detail['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte -= $product_detail['quantity'];
                                 $product_warehouse->save();
@@ -606,11 +606,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $product_detail['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $request->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $qty_combined;
                                     $product_warehouse->save();
@@ -618,11 +618,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $request->warehouse_id)
                                 ->where('product_id', $product_detail['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $product_detail['quantity'];
                                     $product_warehouse->save();
@@ -682,7 +682,7 @@ class AdjustmentController extends BaseController
                 if ($value['type'] == "add") {
 
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $current_adjustment->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->where('product_variant_id', $value['product_variant_id'])
@@ -694,7 +694,7 @@ class AdjustmentController extends BaseController
                         }
 
                     } else {
-                       
+
 
                         $product_detail = Product::where('deleted_at', '=', null)
                         ->where('id', $value['product_id'])
@@ -702,11 +702,11 @@ class AdjustmentController extends BaseController
 
                         if($product_detail->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id',  $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte -= $value['quantity'];
                                 $product_warehouse->save();
@@ -719,11 +719,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $value['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $qty_combined;
                                     $product_warehouse->save();
@@ -731,11 +731,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $value['quantity'];
                                     $product_warehouse->save();
@@ -746,7 +746,7 @@ class AdjustmentController extends BaseController
                     }
                 } else {
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                        $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                             ->where('warehouse_id', $current_adjustment->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->where('product_variant_id', $value['product_variant_id'])
@@ -758,18 +758,18 @@ class AdjustmentController extends BaseController
                         }
 
                     } else {
-                        
+
                         $product_detail = Product::where('deleted_at', '=', null)
                         ->where('id', $value['product_id'])
                         ->first();
 
                         if($product_detail->type == 'is_single'){
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id',  $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                             if ($product_warehouse) {
                                 $product_warehouse->qte += $value['quantity'];
                                 $product_warehouse->save();
@@ -782,11 +782,11 @@ class AdjustmentController extends BaseController
 
                                 $qty_combined = $combined_product->quantity * $value['quantity'];
 
-                                $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                                $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $combined_product->combined_product_id)
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte -= $qty_combined;
                                     $product_warehouse->save();
@@ -794,11 +794,11 @@ class AdjustmentController extends BaseController
 
                             }
 
-                            $product_warehouse = product_warehouse::where('deleted_at', '=', null)
+                            $product_warehouse = ProductWarehouse::where('deleted_at', '=', null)
                                 ->where('warehouse_id', $current_adjustment->warehouse_id)
                                 ->where('product_id', $value['product_id'])
                                 ->first();
-    
+
                                 if ($product_warehouse) {
                                     $product_warehouse->qte += $value['quantity'];
                                     $product_warehouse->save();
@@ -821,7 +821,7 @@ class AdjustmentController extends BaseController
         return response()->json(['success' => true], 200);
     }
 
- 
+
 
     //------------ Reference Number of Adjustement  -----------\\
 
@@ -897,7 +897,7 @@ class AdjustmentController extends BaseController
         foreach ($Adjustment_data['details'] as $detail) {
 
             if ($detail->product_variant_id) {
-                $item_product = product_warehouse::where('product_id', $detail->product_id)
+                $item_product = ProductWarehouse::where('product_id', $detail->product_id)
                     ->where('deleted_at', '=', null)
                     ->where('product_variant_id', $detail->product_variant_id)
                     ->where('warehouse_id', $Adjustment_data->warehouse_id)
@@ -920,12 +920,12 @@ class AdjustmentController extends BaseController
 
 
             } else {
-                $item_product = product_warehouse::where('product_id', $detail->product_id)
+                $item_product = ProductWarehouse::where('product_id', $detail->product_id)
                     ->where('deleted_at', '=', null)
                     ->where('warehouse_id', $Adjustment_data->warehouse_id)
                     ->where('product_variant_id', '=', null)
                     ->first();
-                    
+
                     $data['id'] = $detail->id;
                     $data['detail_id'] = $detail_id += 1;
                     $data['quantity'] = $detail->quantity;
@@ -942,7 +942,7 @@ class AdjustmentController extends BaseController
             $details[] = $data;
         }
 
-       
+
         //get warehouses assigned to user
          $user_auth = auth()->user();
          if($user_auth->is_all_warehouses){
@@ -1026,7 +1026,7 @@ class AdjustmentController extends BaseController
         $adjustment['warehouse_name'] = $adjustment_data['warehouse']->name;
         $adjustment['Ref']    = $adjustment_data->Ref;
         $adjustment['date']   = $adjustment_data->date . ' ' . $adjustment_data->time;
-        
+
         $detail_id = 0;
         foreach ($adjustment_data['details'] as $detail) {
 
@@ -1051,7 +1051,7 @@ class AdjustmentController extends BaseController
                 $data['unit'] = $detail['product']['unit']->ShortName;
             }
 
-            
+
             $details[] = $data;
         }
 

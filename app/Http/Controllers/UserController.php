@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProductWareHouse;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\role_user;
-use App\Models\product_warehouse;
 use App\Models\Warehouse;
 use App\Models\UserWarehouse;
 use App\utils\helpers;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Config;
 use File;
@@ -106,7 +105,7 @@ class UserController extends BaseController
 
         $permissions = $user->roles()->first()?->permissions->pluck('name') ?? [];
 
-        $productsAlerts = product_warehouse::join('products', 'product_warehouse.product_id', '=', 'products.id')
+        $productsAlerts = ProductWareHouse::join('products', 'product_warehouse.product_id', '=', 'products.id')
             ->whereRaw('qte <= stock_alert')
             ->whereNull('product_warehouse.deleted_at')
             ->count();
@@ -199,7 +198,7 @@ class UserController extends BaseController
             if(!$User->is_all_warehouses){
                 $User->assignedWarehouses()->sync($request['assigned_to']);
             }
-    
+
         }, 10);
 
         return response()->json(['success' => true]);
@@ -209,7 +208,7 @@ class UserController extends BaseController
 
     public function show($id){
         //
-        
+
     }
 
     public function edit(Request $request, $id)
@@ -227,9 +226,9 @@ class UserController extends BaseController
     //------------- UPDATE  USER ---------\\
 
     public function update(Request $request, $id)
-    {        
+    {
         $this->authorizeForUser($request->user('api'), 'update', User::class);
-        
+
         $this->validate($request, [
             'email' => 'required|email|unique:users',
             'email' => Rule::unique('users')->ignore($id),
@@ -302,7 +301,7 @@ class UserController extends BaseController
             $user_saved->assignedWarehouses()->sync($request['assigned_to']);
 
         }, 10);
-        
+
         return response()->json(['success' => true]);
 
     }
@@ -322,7 +321,7 @@ class UserController extends BaseController
             'phone' => 'required',
             ]
         );
-        
+
         $id = Auth::user()->id;
         $user = User::findOrFail($id);
         $current = $user->password;

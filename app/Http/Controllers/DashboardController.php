@@ -2,36 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
 use App\Models\Expense;
-use App\Models\Unit;
 use App\Models\PaymentPurchase;
 use App\Models\PaymentPurchaseReturns;
 use App\Models\PaymentSale;
 use App\Models\PaymentSaleReturns;
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\product_warehouse;
-use App\Models\Provider;
+use App\Models\ProductWareHouse;
 use App\Models\Purchase;
-use App\Models\Setting;
-use App\Models\PurchaseDetail;
 use App\Models\PurchaseReturn;
-use App\Models\PurchaseReturnDetails;
-use App\Models\Quotation;
-use App\Models\QuotationDetail;
+
 use App\Models\Role;
 use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\SaleReturn;
-use App\Models\SaleReturnDetails;
-use App\Models\User;
 use App\Models\UserWarehouse;
 use App\Models\Warehouse;
-use App\utils\helpers;
 use Carbon\Carbon;
 use DB;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,7 +37,7 @@ class DashboardController extends Controller
             $array_warehouses_id = UserWarehouse::where('user_id', $user_auth->id)->pluck('warehouse_id')->toArray();
             $warehouses = Warehouse::where('deleted_at', '=', null)->whereIn('id', $array_warehouses_id)->get(['id', 'name']);
         }
-                    
+
         if(empty($request->warehouse_id)){
             $warehouse_id = 0;
         }else{
@@ -109,7 +96,7 @@ class DashboardController extends Controller
                     return $query->whereIn('warehouse_id', $array_warehouses_id);
                 }
             })
-            
+
             ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
             ->orderBy('date', 'asc')
             ->get([
@@ -260,7 +247,7 @@ class DashboardController extends Controller
 
         return response()->json($products);
     }
-    
+
 
     //-------------------- General Report dashboard -------------\\
 
@@ -300,7 +287,7 @@ class DashboardController extends Controller
             ->get();
 
         // Stock Alerts
-        $product_warehouse_data = product_warehouse::with('warehouse', 'product' ,'productVariant')
+        $product_warehouse_data = ProductWareHouse::with('warehouse', 'product' ,'productVariant')
         ->join('products', 'product_warehouse.product_id', '=', 'products.id')
         ->where('manage_stock', true)
         ->whereRaw('qte <= stock_alert')
@@ -374,7 +361,7 @@ class DashboardController extends Controller
             }
         })
         ->get(DB::raw('SUM(GrandTotal)  As sum'))
-        ->first()->sum; 
+        ->first()->sum;
 
         $data['return_sales'] = number_format($data['return_sales'], 2, '.', ',');
 

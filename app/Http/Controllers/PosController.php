@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Account;
-use App\Models\User;
+use App\Models\ProductWareHouse;
 use App\Models\UserWarehouse;
 use App\Models\Brand;
 use App\Models\Category;
@@ -13,7 +13,6 @@ use App\Models\Product;
 use App\Models\Setting;
 use App\Models\PosSetting;
 use App\Models\ProductVariant;
-use App\Models\product_warehouse;
 use App\Models\PaymentWithCreditCard;
 use App\Models\Role;
 use App\Models\Unit;
@@ -24,6 +23,7 @@ use App\Models\DraftSaleDetail;
 use App\Models\Warehouse;
 use App\utils\helpers;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Twilio\Rest\Client as Client_Twilio;
 use GuzzleHttp\Client as Client_guzzle;
 use GuzzleHttp\Client as Client_termi;
@@ -116,7 +116,7 @@ class PosController extends BaseController
                 ];
 
                 if ($value['product_variant_id'] !== null) {
-                    $product_warehouse = product_warehouse::where('warehouse_id', $order->warehouse_id)
+                    $product_warehouse = ProductWarehouse::where('warehouse_id', $order->warehouse_id)
                         ->where('product_id', $value['product_id'])->where('product_variant_id', $value['product_variant_id'])
                         ->first();
 
@@ -130,7 +130,7 @@ class PosController extends BaseController
                     }
 
                 } else {
-                    $product_warehouse = product_warehouse::where('warehouse_id', $order->warehouse_id)
+                    $product_warehouse = ProductWarehouse::where('warehouse_id', $order->warehouse_id)
                         ->where('product_id', $value['product_id'])
                         ->first();
                     if ($unit && $product_warehouse) {
@@ -156,24 +156,24 @@ class PosController extends BaseController
 
             foreach ($request->payments as $payment) {
                 $accountId = $request->account_id ?? null;
-    
+
                 $originalAmount = $payment['amount'];
                 $paymentAmount = $originalAmount;
                 $changeReturn = 0;
-    
+
                 // Adjust if overpaid in single-payment mode
                 if (count($request->payments) === 1 && $originalAmount > $request->GrandTotal) {
                     $paymentAmount = $request->GrandTotal;
                     $changeReturn = $originalAmount - $request->GrandTotal;
                 }
-    
+
                 if ($payment['payment_method_id'] == 1 || $payment['payment_method_id'] == '1') {
 
                     $client = Client::findOrFail($request->client_id);
                     Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
-    
+
                     $existing = PaymentWithCreditCard::where('customer_id', $request->client_id)->first();
-    
+
                     if (!$existing) {
                         $customer = \Stripe\Customer::create([
                             'source' => $request->token,
@@ -189,7 +189,7 @@ class PosController extends BaseController
                     } else {
                         $customerStripeId = $existing->customer_stripe_id;
                         $cardId = $request->card_id;
-    
+
                         if ($request->is_new_credit_card) {
                             $card = \Stripe\Customer::createSource($customerStripeId, ['source' => $request->token]);
                             $charge = \Stripe\Charge::create([
@@ -208,7 +208,7 @@ class PosController extends BaseController
                         }
                     }
                 }
-    
+
                 $paymentSale = PaymentSale::create([
                     'sale_id' => $order->id,
                     'account_id' => $accountId,
@@ -220,7 +220,7 @@ class PosController extends BaseController
                     'notes' => $request['payment_note'] ?? null,
                     'user_id' => Auth::user()->id,
                 ]);
-    
+
                 if ($payment['payment_method_id'] == 1 || $payment['payment_method_id'] == '1') {
                     PaymentWithCreditCard::create([
                         'customer_id' => $request->client_id,
@@ -229,7 +229,7 @@ class PosController extends BaseController
                         'charge_id' => $charge->id,
                     ]);
                 }
-    
+
                 if ($accountId) {
                     $account = Account::find($accountId);
                     if ($account) {
@@ -237,10 +237,10 @@ class PosController extends BaseController
                     }
                 }
             }
-    
+
             $totalPaidAdjusted = min($totalPaid, $request->GrandTotal);
             $due = $order->GrandTotal - $totalPaidAdjusted;
-    
+
             $order->update([
                 'paid_amount' => $totalPaidAdjusted,
                 'payment_statut' => $due <= 0 ? 'paid' : ($due < $order->GrandTotal ? 'partial' : 'unpaid')
@@ -298,7 +298,7 @@ class PosController extends BaseController
 
         //settings
         $settings = Setting::where('deleted_at', '=', null)->first();
-    
+
         //the custom msg of sale
         $emailMessage  = EmailMessage::where('name', 'sale')->first();
 
@@ -339,111 +339,111 @@ class PosController extends BaseController
         $email['body'] = $message_body;
         $email['company_name'] = $business_name;
 
-        $this->Set_config_mail(); 
+        $this->Set_config_mail();
 
         Mail::to($receiver_email)->send(new CustomEmail($email));
         return response()->json(['message' => 'Email sent successfully'], 200);
 
     }
- 
+
 
      //-------------------Sms Notifications -----------------\\
- 
+
      public function Send_SMS($id)
      {
 
          //sale
          $sale = Sale::with('client')->where('deleted_at', '=', null)->findOrFail($id);
- 
+
          $helpers = new helpers();
          $currency = $helpers->Get_Currency();
-         
+
          //settings
          $settings = Setting::where('deleted_at', '=', null)->first();
-     
+
          $default_sms_gateway = sms_gateway::where('id' , $settings->sms_gateway)
          ->where('deleted_at', '=', null)->first();
 
          //the custom msg of sale
          $smsMessage  = SMSMessage::where('name', 'sale')->first();
- 
+
          if($smsMessage){
              $message_text = $smsMessage->text;
          }else{
              $message_text = '';
          }
- 
+
          //Tags
          $random_number = Str::random(10);
          $invoice_url = url('/api/sale_pdf/' . $id.'?'.$random_number);
          $invoice_number = $sale->Ref;
- 
+
          $total_amount = $currency.' '.number_format($sale->GrandTotal, 2, '.', ',');
          $paid_amount  = $currency.' '.number_format($sale->paid_amount, 2, '.', ',');
          $due_amount   = $currency.' '.number_format($sale->GrandTotal - $sale->paid_amount, 2, '.', ',');
- 
+
          $contact_name = $sale['client']->name;
          $business_name = $settings->CompanyName;
- 
+
          //receiver Number
          $receiverNumber = $sale['client']->phone;
- 
+
          //replace the text with tags
          $message_text = str_replace('{contact_name}', $contact_name, $message_text);
          $message_text = str_replace('{business_name}', $business_name, $message_text);
          $message_text = str_replace('{invoice_url}', $invoice_url, $message_text);
          $message_text = str_replace('{invoice_number}', $invoice_number, $message_text);
- 
+
          $message_text = str_replace('{total_amount}', $total_amount, $message_text);
          $message_text = str_replace('{paid_amount}', $paid_amount, $message_text);
          $message_text = str_replace('{due_amount}', $due_amount, $message_text);
- 
+
          //twilio
          if($default_sms_gateway->title == "twilio"){
              try {
-     
+
                  $account_sid = env("TWILIO_SID");
                  $auth_token = env("TWILIO_TOKEN");
                  $twilio_number = env("TWILIO_FROM");
-     
+
                  $client = new Client_Twilio($account_sid, $auth_token);
                  $client->messages->create($receiverNumber, [
-                     'from' => $twilio_number, 
+                     'from' => $twilio_number,
                      'body' => $message_text]);
-         
+
              } catch (Exception $e) {
                  return response()->json(['message' => $e->getMessage()], 500);
              }
          }
          elseif($default_sms_gateway->title == "infobip"){
- 
+
              $BASE_URL = env("base_url");
              $API_KEY = env("api_key");
              $SENDER = env("sender_from");
- 
+
              $configuration = (new Configuration())
                  ->setHost($BASE_URL)
                  ->setApiKeyPrefix('Authorization', 'App')
                  ->setApiKey('Authorization', $API_KEY);
-             
+
              $client = new Client_guzzle();
-             
+
              $sendSmsApi = new SendSMSApi($client, $configuration);
              $destination = (new SmsDestination())->setTo($receiverNumber);
              $message = (new SmsTextualMessage())
                  ->setFrom($SENDER)
                  ->setText($message_text)
                  ->setDestinations([$destination]);
-                 
+
              $request = (new SmsAdvancedTextualRequest())->setMessages([$message]);
-             
+
              try {
                  $smsResponse = $sendSmsApi->sendSmsMessage($request);
                  echo ("Response body: " . $smsResponse);
              } catch (Throwable $apiException) {
                  echo("HTTP Code: " . $apiException->getCode() . "\n");
              }
-             
+
          }
           elseif($default_sms_gateway->title == "termii"){
 
@@ -470,13 +470,13 @@ class PosController extends BaseController
                 Log::error("Termii SMS Error: " . $e->getMessage());
                 return response()->json(['status' => 'error', 'message' => 'Failed to send SMS'], 500);
             }
-             
- 
+
+
         }
- 
+
          return response()->json(['success' => true]);
- 
-         
+
+
      }
 
     //------------- get_draft_sales -----------\\
@@ -495,7 +495,7 @@ class PosController extends BaseController
         $order = 'id';
         $dir = 'DESC';
         $helpers = new helpers();
-        
+
         $data = array();
 
         // Check If User Has Permission View  All Records
@@ -506,20 +506,20 @@ class PosController extends BaseController
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             });
-    
+
 
         $totalRows = $draft_sales->count();
         if($perPage == "-1"){
             $perPage = $totalRows;
         }
-        
+
         $drafts = $draft_sales->offset($offSet)
             ->limit($perPage)
             ->orderBy($order, $dir)
             ->get();
 
         foreach ($drafts as $draft) {
-            
+
             $item['id'] = $draft['id'];
             $item['date'] = $draft['date'];
             $item['Ref'] = $draft['Ref'];
@@ -527,17 +527,17 @@ class PosController extends BaseController
             $item['client_name'] = $draft['client']['name'];
             $item['GrandTotal'] = number_format($draft['GrandTotal'], 2, '.', '');
             $item['actions'] = '';
-            
+
             $data[] = $item;
         }
-        
-    
+
+
         return response()->json([
             'totalRows' => $totalRows,
             'draft_sales' => $data,
         ]);
     }
-  
+
 
     //------------ Create Draft --------------\\
 
@@ -602,13 +602,13 @@ class PosController extends BaseController
      public function remove_draft_sale(Request $request, $id)
      {
         $this->authorizeForUser($request->user('api'), 'Sales_pos', Sale::class);
- 
+
          \DB::transaction(function () use ($id, $request) {
- 
+
              $role = Auth::user()->roles()->first();
              $view_records = Role::findOrFail($role->id)->inRole('record_view');
              $draft = DraftSale::findOrFail($id);
- 
+
              // Check If User Has Permission view All Records
              if (!$view_records) {
                  // Check If User->id === draft->id
@@ -618,9 +618,9 @@ class PosController extends BaseController
              $draft->update([
                  'deleted_at' => Carbon::now(),
              ]);
- 
+
          }, 10);
- 
+
          return response()->json(['success' => true]);
      }
 
@@ -684,7 +684,7 @@ class PosController extends BaseController
                     ];
 
                     if ($value['product_variant_id'] !== null) {
-                        $product_warehouse = product_warehouse::where('warehouse_id', $order->warehouse_id)
+                        $product_warehouse = ProductWarehouse::where('warehouse_id', $order->warehouse_id)
                             ->where('product_id', $value['product_id'])->where('product_variant_id', $value['product_variant_id'])
                             ->first();
 
@@ -698,7 +698,7 @@ class PosController extends BaseController
                         }
 
                     } else {
-                        $product_warehouse = product_warehouse::where('warehouse_id', $order->warehouse_id)
+                        $product_warehouse = ProductWarehouse::where('warehouse_id', $order->warehouse_id)
                             ->where('product_id', $value['product_id'])
                             ->first();
                         if ($unit && $product_warehouse) {
@@ -733,7 +733,7 @@ class PosController extends BaseController
                     } else if ($due == $sale->GrandTotal) {
                         $payment_statut = 'unpaid';
                     }
-                                
+
                     if($request['amount'] > 0){
                         if ($request->payment['payment_method_id'] == 1 || $request->payment['payment_method_id'] == '1') {
 
@@ -863,7 +863,7 @@ class PosController extends BaseController
                         }
 
                     }
-                
+
                 } catch (Exception $e) {
                     return response()->json(['message' => $e->getMessage()], 500);
                 }
@@ -904,7 +904,7 @@ class PosController extends BaseController
              $warehouses_id = UserWarehouse::where('user_id', $user_auth->id)->pluck('warehouse_id')->toArray();
              $warehouses = Warehouse::where('deleted_at', '=', null)->whereIn('id', $warehouses_id)->get(['id', 'name']);
           }
-        
+
 
         if ($draft_sale_data->client_id) {
             if (Client::where('id', $draft_sale_data->client_id)->where('deleted_at', '=', null)->first()) {
@@ -956,9 +956,9 @@ class PosController extends BaseController
                 $data['no_unit'] = 0;
             }
 
-    
+
             if ($detail->product_variant_id) {
-                $item_product = product_warehouse::where('product_id', $detail->product_id)
+                $item_product = ProductWarehouse::where('product_id', $detail->product_id)
                     ->where('deleted_at', '=', null)
                     ->where('product_variant_id', $detail->product_variant_id)
                     ->where('warehouse_id', $draft_sale_data->warehouse_id)
@@ -971,7 +971,7 @@ class PosController extends BaseController
                 $data['product_variant_id'] = $detail->product_variant_id;
                 $data['code'] = $productsVariants->code;
                 $data['name'] = '['.$productsVariants->name . ']' . $detail['product']['name'];
-                
+
                 if ($unit && $unit->operator == '/') {
                 $stock = $item_product ? $item_product->qte * $unit->operator_value : 0;
                 } else if ($unit && $unit->operator == '*') {
@@ -981,7 +981,7 @@ class PosController extends BaseController
                 }
 
             } else {
-                $item_product = product_warehouse::where('product_id', $detail->product_id)
+                $item_product = ProductWarehouse::where('product_id', $detail->product_id)
                     ->where('deleted_at', '=', null)->where('warehouse_id', $draft_sale_data->warehouse_id)
                     ->where('product_variant_id', '=', null)->first();
 
@@ -999,7 +999,7 @@ class PosController extends BaseController
                 }
 
             }
-            
+
             $data['id'] = $detail->id;
             $data['fix_stock'] = $detail['product']['type'] !='is_service'?$stock:'---';
             $data['current'] = $detail['product']['type'] !='is_service'?$stock:'---';
@@ -1025,7 +1025,7 @@ class PosController extends BaseController
 
             $tax_price = $detail->TaxNet * (($detail->price - $data['DiscountNet']) / 100);
             $data['Unit_price'] = $detail->price;
-            
+
             $data['tax_percent'] = $detail->TaxNet;
             $data['tax_method'] = $detail->tax_method;
             $data['discount'] = $detail->discount;
@@ -1043,7 +1043,7 @@ class PosController extends BaseController
 
             $details[] = $data;
         }
-        
+
         $categories = Category::where('deleted_at', '=', null)->get(['id', 'name']);
         $brands = Brand::where('deleted_at', '=', null)->get();
         $stripe_key = config('app.STRIPE_KEY');
@@ -1065,23 +1065,24 @@ class PosController extends BaseController
             'details'        => $details,
         ]);
     }
- 
+
 
     //------------ Get Products--------------\\
 
-    public function GetProductsByParametre(request $request)
+    public function getProductsByParameter(Request $request): JsonResponse
     {
         $this->authorizeForUser($request->user('api'), 'Sales_pos', Sale::class);
 
         // How many items do you want to display.
         $perPage = PosSetting::where('deleted_at', '=', null)->first()->products_per_page;
 
-        $pageStart = \Request::get('page', 1);
+        $pageStart = $request->get('page', 1);
+
         // Start displaying items from this number;
         $offSet = ($pageStart * $perPage) - $perPage;
         $data = array();
 
-        $product_warehouse_data = product_warehouse::where('warehouse_id', $request->warehouse_id)
+        $product_warehouse_data = ProductWarehouse::where('warehouse_id', $request->warehouse_id)
             ->with('product', 'product.unitSale')
             ->where('deleted_at', '=', null)
             ->where(function ($query) use ($request) {
@@ -1101,10 +1102,10 @@ class PosController extends BaseController
                 ->where(function ($query) use ($request) {
                     if ($request->stock == '1' && $request->product_service == '1') {
                         return $query->where('qte', '>', 0)->orWhere('manage_stock', false);
-    
+
                     }elseif($request->stock == '1' && $request->product_service == '0') {
                         return $query->where('qte', '>', 0)->orWhere('manage_stock', true);
-    
+
                     }else{
                         return $query->where('manage_stock', true);
                     }
@@ -1184,7 +1185,7 @@ class PosController extends BaseController
             $item['unitSale'] = $product_warehouse['product']['unitSale']?$product_warehouse['product']['unitSale']->ShortName:'';
             $item['qte'] = $product_warehouse['product']->type!='is_service'?$product_warehouse->qte:'---';
             $item['product_type'] = $product_warehouse['product']->type;
-            
+
             if ($product_warehouse['product']->TaxNet !== 0.0) {
 
                 //Exclusive
@@ -1250,8 +1251,8 @@ class PosController extends BaseController
           }
 
 
-      
-        
+
+
 
         if ($settings->client_id) {
             if (Client::where('id', $settings->client_id)->where('deleted_at', '=', null)->first()) {
@@ -1293,9 +1294,9 @@ class PosController extends BaseController
 
       public function getNumberOrderDraft()
       {
-  
+
           $last = DB::table('draft_sales')->latest('id')->first();
-  
+
           if ($last) {
               $item = $last->Ref;
               $nwMsg = explode("_", $item);

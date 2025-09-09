@@ -20,7 +20,7 @@ use App\Models\Client;
 use App\Models\Product;
 use App\Models\Unit;
 use App\Models\ProductVariant;
-use App\Models\product_warehouse;
+use App\Models\ProductWarehouse;
 use App\Models\Quotation;
 use App\Models\QuotationDetail;
 use App\Models\Role;
@@ -127,7 +127,7 @@ class QuotationsController extends BaseController
         }
 
         $customers = client::where('deleted_at', '=', null)->get();
-        
+
         //get warehouses assigned to user
         $user_auth = auth()->user();
         if($user_auth->is_all_warehouses){
@@ -409,7 +409,7 @@ class QuotationsController extends BaseController
                 $data['code'] = $detail['product']['code'];
                 $data['name'] = $detail['product']['name'];
             }
-            
+
             $data['quantity']  = $detail->quantity;
             $data['total']     = $detail->total;
             $data['price']     = $detail->price;
@@ -521,7 +521,7 @@ class QuotationsController extends BaseController
                 $data['code'] = $detail['product']['code'];
                 $data['name'] = $detail['product']['name'];
             }
-            
+
                 $data['detail_id'] = $detail_id += 1;
                 $data['quantity'] = number_format($detail->quantity, 2, '.', '');
                 $data['total'] = number_format($detail->total, 2, '.', '');
@@ -672,7 +672,7 @@ class QuotationsController extends BaseController
             }
 
             if ($detail->product_variant_id) {
-                $item_product = product_warehouse::where('product_id', $detail->product_id)
+                $item_product = ProductWarehouse::where('product_id', $detail->product_id)
                     ->where('product_variant_id', $detail->product_variant_id)
                     ->where('warehouse_id', $Quotation->warehouse_id)
                     ->where('deleted_at', '=', null)
@@ -696,7 +696,7 @@ class QuotationsController extends BaseController
                 }
 
             } else {
-                $item_product = product_warehouse::where('product_id', $detail->product_id)
+                $item_product = ProductWarehouse::where('product_id', $detail->product_id)
                     ->where('deleted_at', '=', null)
                     ->where('warehouse_id', $Quotation->warehouse_id)
                     ->where('product_variant_id', '=', null)
@@ -791,10 +791,10 @@ class QuotationsController extends BaseController
 
          //settings
          $settings = Setting::where('deleted_at', '=', null)->first();
-     
+
          //the custom msg of quotation
          $emailMessage  = EmailMessage::where('name', 'quotation')->first();
- 
+
          if($emailMessage){
              $message_body = $emailMessage->body;
              $message_subject = $emailMessage->subject;
@@ -802,20 +802,20 @@ class QuotationsController extends BaseController
              $message_body = '';
              $message_subject = '';
          }
- 
+
          //Tags
          $random_number = Str::random(10);
          $quotation_url = url('/api/quote_pdf/' . $request->id.'?'.$random_number);
          $quotation_number = $quotation->Ref;
- 
+
          $total_amount = $currency .' '.number_format($quotation->GrandTotal, 2, '.', ',');
-        
+
          $contact_name = $quotation['client']->name;
          $business_name = $settings->CompanyName;
- 
+
          //receiver email
          $receiver_email = $quotation['client']->email;
- 
+
          //replace the text with tags
          $message_body = str_replace('{contact_name}', $contact_name, $message_body);
          $message_body = str_replace('{business_name}', $business_name, $message_body);
@@ -827,7 +827,7 @@ class QuotationsController extends BaseController
         $email['body'] = $message_body;
         $email['company_name'] = $business_name;
 
-        $this->Set_config_mail(); 
+        $this->Set_config_mail();
 
         Mail::to($receiver_email)->send(new CustomEmail($email));
         return response()->json(['message' => 'Email sent successfully'], 200);
@@ -868,7 +868,7 @@ class QuotationsController extends BaseController
         $quotation_number = $quotation->Ref;
 
         $total_amount = $currency .' '.number_format($quotation->GrandTotal, 2, '.', ',');
-        
+
         $contact_name = $quotation['client']->name;
         $business_name = $settings->CompanyName;
 
@@ -892,7 +892,7 @@ class QuotationsController extends BaseController
 
                 $client = new Client_Twilio($account_sid, $auth_token);
                 $client->messages->create($receiverNumber, [
-                    'from' => $twilio_number, 
+                    'from' => $twilio_number,
                     'body' => $message_text]);
 
             } catch (Exception $e) {
@@ -925,8 +925,8 @@ class QuotationsController extends BaseController
                 Log::error("Termii SMS Error: " . $e->getMessage());
                 return response()->json(['status' => 'error', 'message' => 'Failed to send SMS'], 500);
             }
-             
- 
+
+
         }
         elseif($default_sms_gateway->title == "infobip"){
 
@@ -938,25 +938,25 @@ class QuotationsController extends BaseController
                     ->setHost($BASE_URL)
                     ->setApiKeyPrefix('Authorization', 'App')
                     ->setApiKey('Authorization', $API_KEY);
-                
+
                 $client = new Client_guzzle();
-                
+
                 $sendSmsApi = new SendSMSApi($client, $configuration);
                 $destination = (new SmsDestination())->setTo($receiverNumber);
                 $message = (new SmsTextualMessage())
                     ->setFrom($SENDER)
                     ->setText($message_text)
                     ->setDestinations([$destination]);
-                    
+
                 $request = (new SmsAdvancedTextualRequest())->setMessages([$message]);
-                
+
                 try {
                     $smsResponse = $sendSmsApi->sendSmsMessage($request);
                     echo ("Response body: " . $smsResponse);
                 } catch (Throwable $apiException) {
                     echo("HTTP Code: " . $apiException->getCode() . "\n");
                 }
-                
+
         }
 
         return response()->json(['success' => true]);
@@ -966,56 +966,56 @@ class QuotationsController extends BaseController
      // quotation_send_whatsapp
      public function quotation_send_whatsapp(Request $request)
      {
- 
+
           //Quotation
           $quotation = Quotation::with('client')->where('deleted_at', '=', null)->findOrFail($request->id);
- 
+
           $helpers = new helpers();
           $currency = $helpers->Get_Currency();
-  
+
           //settings
           $settings = Setting::where('deleted_at', '=', null)->first();
-  
+
           //the custom msg of quotation
           $smsMessage  = SMSMessage::where('name', 'quotation')->first();
-  
+
           if($smsMessage){
               $message_text = $smsMessage->text;
           }else{
               $message_text = '';
           }
-  
+
           //Tags
           $random_number = Str::random(10);
           $quotation_url = url('/api/quote_pdf/' . $request->id.'?'.$random_number);
           $quotation_number = $quotation->Ref;
-  
+
           $total_amount = $currency .' '.number_format($quotation->GrandTotal, 2, '.', ',');
-          
+
           $contact_name = $quotation['client']->name;
           $business_name = $settings->CompanyName;
-  
+
           //receiver phone
           $receiverNumber = $quotation['client']->phone;
- 
+
            // Check if the phone number is empty or null
          if (empty($receiverNumber) || $receiverNumber == null || $receiverNumber == 'null' || $receiverNumber == '') {
              return response()->json(['error' => 'Phone number is missing'], 400);
          }
-  
-  
+
+
           //replace the text with tags
           $message_text = str_replace('{contact_name}', $contact_name, $message_text);
           $message_text = str_replace('{business_name}', $business_name, $message_text);
           $message_text = str_replace('{quotation_url}', $quotation_url, $message_text);
           $message_text = str_replace('{quotation_number}', $quotation_number, $message_text);
           $message_text = str_replace('{total_amount}', $total_amount, $message_text);
-         
+
           return response()->json(['message' => $message_text , 'phone' => $receiverNumber ]);
- 
- 
+
+
      }
-    
+
 
 }
 
