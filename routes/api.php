@@ -20,7 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//--------------------------- Reset Password  ---------------------------
+// --------------------------- Reset Password  ---------------------------
 
 Route::group([
     'prefix' => 'password',
@@ -29,10 +29,10 @@ Route::group([
     Route::post('reset', 'PasswordResetController@reset');
 });
 
-
 Route::post('getAccessToken', 'AuthController@getAccessToken');
 Route::get('/get-logo-setting', function () {
     $setting = \App\Models\Setting::first();
+
     return response()->json([
         'logo' => $setting->logo ?? null,
     ]);
@@ -46,12 +46,11 @@ Route::get('/translations/{locale}', function ($locale) {
     return response()->json($translations);
 });
 
-
- Route::get('/languages', 'LanguageController@load_language');
+Route::get('/languages', 'LanguageController@load_language');
 
 Route::middleware(['auth:api', 'Is_Active'])->group(function () {
 
-    Route::get("dashboard_data", "DashboardController@dashboard_data");
+    Route::get('dashboard_data', 'DashboardController@dashboard_data');
 
     Route::get('/retrieve-customer', 'StripeController@retrieveCustomer');
     Route::post('/update-customer-stripe', 'StripeController@updateCustomer');
@@ -69,181 +68,173 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::put('/translations_setting/{locale}', 'LanguageController@updateOrInsert');
     Route::delete('/translations_setting/{locale}/{key}', 'LanguageController@delete_translate');
 
-    //-------------------------- Clear Cache ---------------------------
+    // -------------------------- Clear Cache ---------------------------
 
-    Route::get("clear_cache", "SettingsController@Clear_Cache");
+    Route::get('clear_cache', 'SettingsController@Clear_Cache');
 
-    //------------------------------- subscriptions ------------------------\\
+    // ------------------------------- subscriptions ------------------------\\
 
     Route::resource('subscriptions', 'SubscriptionController');
     Route::put('/subscriptions/{id}/status', 'SubscriptionController@updateStatus');
 
-    //------------------------------- error_logs ------------------------\\
+    // ------------------------------- error_logs ------------------------\\
 
     Route::get('/error-logs', 'ErrorLogController@index')->name('error_logs.index');
 
-    //-------------------------- Reports ---------------------------
+    // -------------------------- Reports ---------------------------
 
-    Route::get("report/client", "ReportController@Client_Report");
-    Route::get("report/client/{id}", "ReportController@Client_Report_detail");
-    Route::get("report/client_sales", "ReportController@Sales_Client");
-    Route::get("report/client_payments", "ReportController@Payments_Client");
-    Route::get("report/client_quotations", "ReportController@Quotations_Client");
-    Route::get("report/client_returns", "ReportController@Returns_Client");
-    Route::get("report/provider", "ReportController@Providers_Report");
-    Route::get("report/provider/{id}", "ReportController@Provider_Report_detail");
-    Route::get("report/provider_purchases", "ReportController@Purchases_Provider");
-    Route::get("report/provider_payments", "ReportController@Payments_Provider");
-    Route::get("report/provider_returns", "ReportController@Returns_Provider");
-    Route::get("report/sales", "ReportController@Report_Sales");
-    Route::get("report/purchases", "ReportController@Report_Purchases");
-    Route::get("report/get_last_sales", "ReportController@Get_last_Sales");
-    Route::get("report/stock_alert", "ReportController@Products_Alert");
-    Route::get("report/payment_chart", "ReportController@Payment_chart");
-    Route::get("report/warehouse_report", "ReportController@Warehouse_Report");
-    Route::get("report/sales_warehouse", "ReportController@Sales_Warehouse");
-    Route::get("report/quotations_warehouse", "ReportController@Quotations_Warehouse");
-    Route::get("report/returns_sale_warehouse", "ReportController@Returns_Sale_Warehouse");
-    Route::get("report/returns_purchase_warehouse", "ReportController@Returns_Purchase_Warehouse");
-    Route::get("report/expenses_warehouse", "ReportController@Expenses_Warehouse");
-    Route::get("report/warhouse_count_stock", "ReportController@Warhouse_Count_Stock");
-    Route::get("report/report_today", "ReportController@report_today");
-    Route::get("report/count_quantity_alert", "ReportController@count_quantity_alert");
-    Route::get("report/profit_and_loss", "ReportController@ProfitAndLoss");
-    Route::get("report/report_dashboard", "ReportController@report_dashboard");
-    Route::get("report/top_products", "ReportController@report_top_products");
-    Route::get("report/top_customers", "ReportController@report_top_customers");
-    Route::get("report/product_report", "ReportController@product_report");
-    Route::get("report/sale_products_details", "ReportController@sale_products_details");
-    Route::get("report/product_sales_report", "ReportController@product_sales_report");
-    Route::get("report/product_purchases_report", "ReportController@product_purchases_report");
+    Route::get('report/client', 'ReportController@Client_Report');
+    Route::get('report/client/{id}', 'ReportController@Client_Report_detail');
+    Route::get('report/client_sales', 'ReportController@Sales_Client');
+    Route::get('report/client_payments', 'ReportController@Payments_Client');
+    Route::get('report/client_quotations', 'ReportController@Quotations_Client');
+    Route::get('report/client_returns', 'ReportController@Returns_Client');
+    Route::get('report/provider', 'ReportController@Providers_Report');
+    Route::get('report/provider/{id}', 'ReportController@Provider_Report_detail');
+    Route::get('report/provider_purchases', 'ReportController@Purchases_Provider');
+    Route::get('report/provider_payments', 'ReportController@Payments_Provider');
+    Route::get('report/provider_returns', 'ReportController@Returns_Provider');
+    Route::get('report/sales', 'ReportController@Report_Sales');
+    Route::get('report/purchases', 'ReportController@Report_Purchases');
+    Route::get('report/get_last_sales', 'ReportController@Get_last_Sales');
+    Route::get('report/stock_alert', 'ReportController@Products_Alert');
+    Route::get('report/payment_chart', 'ReportController@Payment_chart');
+    Route::get('report/warehouse_report', 'ReportController@Warehouse_Report');
+    Route::get('report/sales_warehouse', 'ReportController@Sales_Warehouse');
+    Route::get('report/quotations_warehouse', 'ReportController@Quotations_Warehouse');
+    Route::get('report/returns_sale_warehouse', 'ReportController@Returns_Sale_Warehouse');
+    Route::get('report/returns_purchase_warehouse', 'ReportController@Returns_Purchase_Warehouse');
+    Route::get('report/expenses_warehouse', 'ReportController@Expenses_Warehouse');
+    Route::get('report/warhouse_count_stock', 'ReportController@Warhouse_Count_Stock');
+    Route::get('report/report_today', 'ReportController@report_today');
+    Route::get('report/count_quantity_alert', 'ReportController@count_quantity_alert');
+    Route::get('report/profit_and_loss', 'ReportController@ProfitAndLoss');
+    Route::get('report/report_dashboard', 'ReportController@report_dashboard');
+    Route::get('report/top_products', 'ReportController@report_top_products');
+    Route::get('report/top_customers', 'ReportController@report_top_customers');
+    Route::get('report/product_report', 'ReportController@product_report');
+    Route::get('report/sale_products_details', 'ReportController@sale_products_details');
+    Route::get('report/product_sales_report', 'ReportController@product_sales_report');
+    Route::get('report/product_purchases_report', 'ReportController@product_purchases_report');
 
-    Route::get("report/users", "ReportController@users_Report");
-    Route::get("report/stock", "ReportController@stock_Report");
-    Route::get("report/get_sales_by_user", "ReportController@get_sales_by_user");
-    Route::get("report/get_quotations_by_user", "ReportController@get_quotations_by_user");
-    Route::get("report/get_sales_return_by_user", "ReportController@get_sales_return_by_user");
-    Route::get("report/get_purchases_by_user", "ReportController@get_purchases_by_user");
-    Route::get("report/get_purchase_return_by_user", "ReportController@get_purchase_return_by_user");
-    Route::get("report/get_transfer_by_user", "ReportController@get_transfer_by_user");
-    Route::get("report/get_adjustment_by_user", "ReportController@get_adjustment_by_user");
+    Route::get('report/users', 'ReportController@users_Report');
+    Route::get('report/stock', 'ReportController@stock_Report');
+    Route::get('report/get_sales_by_user', 'ReportController@get_sales_by_user');
+    Route::get('report/get_quotations_by_user', 'ReportController@get_quotations_by_user');
+    Route::get('report/get_sales_return_by_user', 'ReportController@get_sales_return_by_user');
+    Route::get('report/get_purchases_by_user', 'ReportController@get_purchases_by_user');
+    Route::get('report/get_purchase_return_by_user', 'ReportController@get_purchase_return_by_user');
+    Route::get('report/get_transfer_by_user', 'ReportController@get_transfer_by_user');
+    Route::get('report/get_adjustment_by_user', 'ReportController@get_adjustment_by_user');
 
-    Route::get("report/get_sales_by_product", "ReportController@get_sales_by_product");
-    Route::get("report/get_quotations_by_product", "ReportController@get_quotations_by_product");
+    Route::get('report/get_sales_by_product', 'ReportController@get_sales_by_product');
+    Route::get('report/get_quotations_by_product', 'ReportController@get_quotations_by_product');
 
-    Route::get("report/get_sales_return_by_product", "ReportController@get_sales_return_by_product");
-    Route::get("report/get_purchases_by_product", "ReportController@get_purchases_by_product");
-    Route::get("report/get_purchase_return_by_product", "ReportController@get_purchase_return_by_product");
-    Route::get("report/get_transfer_by_product", "ReportController@get_transfer_by_product");
-    Route::get("report/get_adjustment_by_product", "ReportController@get_adjustment_by_product");
-    Route::get("report/client_pdf/{id}", "ReportController@download_report_client_pdf");
-    Route::get("report/provider_pdf/{id}", "ReportController@download_report_provider_pdf");
+    Route::get('report/get_sales_return_by_product', 'ReportController@get_sales_return_by_product');
+    Route::get('report/get_purchases_by_product', 'ReportController@get_purchases_by_product');
+    Route::get('report/get_purchase_return_by_product', 'ReportController@get_purchase_return_by_product');
+    Route::get('report/get_transfer_by_product', 'ReportController@get_transfer_by_product');
+    Route::get('report/get_adjustment_by_product', 'ReportController@get_adjustment_by_product');
+    Route::get('report/client_pdf/{id}', 'ReportController@download_report_client_pdf');
+    Route::get('report/provider_pdf/{id}', 'ReportController@download_report_provider_pdf');
 
-    Route::get("report/inventory_valuation_summary", "ReportController@inventory_valuation_summary");
-    Route::get("report/expenses_report", "ReportController@expenses_report");
-    Route::get("report/deposits_report", "ReportController@deposits_report");
-    Route::get("report/report_transactions", "ReportController@report_transactions");
-    Route::get("report/sales_by_category_report", "ReportController@sales_by_category_report");
-    Route::get("report/sales_by_brand_report", "ReportController@sales_by_brand_report");
+    Route::get('report/inventory_valuation_summary', 'ReportController@inventory_valuation_summary');
+    Route::get('report/expenses_report', 'ReportController@expenses_report');
+    Route::get('report/deposits_report', 'ReportController@deposits_report');
+    Route::get('report/report_transactions', 'ReportController@report_transactions');
+    Route::get('report/sales_by_category_report', 'ReportController@sales_by_category_report');
+    Route::get('report/sales_by_brand_report', 'ReportController@sales_by_brand_report');
 
-
-    //------------------------------- payment_methods ------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- payment_methods ------------------------\\
+    // ------------------------------------------------------------------\\
     Route::resource('payment_methods', 'PaymentMethodController');
 
-    //------------------------------Employee------------------------------------\\
+    // ------------------------------Employee------------------------------------\\
 
     Route::resource('employees', 'hrm\EmployeesController');
     Route::post('employees/import/csv', 'hrm\EmployeesController@import_employees');
     Route::post('employees/delete/by_selection', 'hrm\EmployeesController@delete_by_selection');
-    Route::get("get_employees_by_department", "hrm\EmployeesController@Get_employees_by_department");
-    Route::put("update_social_profile/{id}", "hrm\EmployeesController@update_social_profile");
-    Route::get("get_experiences_by_employee", "hrm\EmployeesController@get_experiences_by_employee");
-    Route::get("get_accounts_by_employee", "hrm\EmployeesController@get_accounts_by_employee");
-    Route::get("Get_employees_by_company", "hrm\EmployeesController@Get_employees_by_company");
+    Route::get('get_employees_by_department', "hrm\EmployeesController@Get_employees_by_department");
+    Route::put('update_social_profile/{id}', "hrm\EmployeesController@update_social_profile");
+    Route::get('get_experiences_by_employee', "hrm\EmployeesController@get_experiences_by_employee");
+    Route::get('get_accounts_by_employee', "hrm\EmployeesController@get_accounts_by_employee");
+    Route::get('Get_employees_by_company', "hrm\EmployeesController@Get_employees_by_company");
 
-    //------------------------------- Employee Experience ----------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- Employee Experience ----------------\\
+    // --------------------------------------------------------------------\\
 
     Route::resource('work_experience', 'hrm\EmployeeExperienceController');
 
-
-    //------------------------------- Employee Accounts bank ----------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- Employee Accounts bank ----------------\\
+    // --------------------------------------------------------------------\\
 
     Route::resource('employee_account', 'hrm\EmployeeAccountController');
 
-
-     //------------------------------- company --------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- company --------------------------\\
+    // --------------------------------------------------------------------\\
     Route::resource('company', 'hrm\CompanyController');
-    Route::get("get_all_company", "hrm\CompanyController@Get_all_Company");
-    Route::post("company/delete/by_selection", "hrm\CompanyController@delete_by_selection");
+    Route::get('get_all_company', "hrm\CompanyController@Get_all_Company");
+    Route::post('company/delete/by_selection', "hrm\CompanyController@delete_by_selection");
 
-
-     //------------------------------- departments --------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- departments --------------------------\\
+    // --------------------------------------------------------------------\\
     Route::resource('departments', 'hrm\DepartmentsController');
-    Route::get("get_all_departments", "hrm\DepartmentsController@Get_all_Departments");
-    Route::get("get_departments_by_company", "hrm\DepartmentsController@Get_departments_by_company")->name('Get_departments_by_company');
-    Route::post("departments/delete/by_selection", "hrm\DepartmentsController@delete_by_selection");
+    Route::get('get_all_departments', "hrm\DepartmentsController@Get_all_Departments");
+    Route::get('get_departments_by_company', "hrm\DepartmentsController@Get_departments_by_company")->name('Get_departments_by_company');
+    Route::post('departments/delete/by_selection', "hrm\DepartmentsController@delete_by_selection");
 
-    //------------------------------- designations --------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- designations --------------------------\\
+    // --------------------------------------------------------------------\\
     Route::resource('designations', 'hrm\DesignationsController');
-    Route::get("get_designations_by_department", "hrm\DesignationsController@Get_designations_by_department");
-    Route::post("designations/delete/by_selection", "hrm\DesignationsController@delete_by_selection");
+    Route::get('get_designations_by_department', "hrm\DesignationsController@Get_designations_by_department");
+    Route::post('designations/delete/by_selection', "hrm\DesignationsController@delete_by_selection");
 
-    //------------------------------- office_shift ------------------\\
-    //----------------------------------------------------------------\\
+    // ------------------------------- office_shift ------------------\\
+    // ----------------------------------------------------------------\\
 
     Route::resource('office_shift', 'hrm\OfficeShiftController');
-    Route::post("office_shift/delete/by_selection", "hrm\OfficeShiftController@delete_by_selection");
+    Route::post('office_shift/delete/by_selection', "hrm\OfficeShiftController@delete_by_selection");
 
-    //------------------------------- Attendances ------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- Attendances ------------------------\\
+    // --------------------------------------------------------------------\\
     Route::resource('attendances', 'hrm\AttendancesController');
-    Route::get("daily_attendance", "hrm\AttendancesController@daily_attendance")->name('daily_attendance');
+    Route::get('daily_attendance', "hrm\AttendancesController@daily_attendance")->name('daily_attendance');
     Route::post('attendance_by_employee/{id}', 'hrm\EmployeeSessionController@attendance_by_employee')->name('attendance_by_employee.post');
-    Route::post("attendances/delete/by_selection", "hrm\AttendancesController@delete_by_selection");
+    Route::post('attendances/delete/by_selection', "hrm\AttendancesController@delete_by_selection");
 
-
-
-    //------------------------------- Request leave  -----------------------\\
-    //----------------------------------------------------------------\\
+    // ------------------------------- Request leave  -----------------------\\
+    // ----------------------------------------------------------------\\
 
     Route::resource('leave', 'hrm\LeaveController');
     Route::resource('leave_type', 'hrm\LeaveTypeController');
-    Route::post("leave/delete/by_selection", "hrm\LeaveController@delete_by_selection");
-    Route::post("leave_type/delete/by_selection", "hrm\LeaveTypeController@delete_by_selection");
+    Route::post('leave/delete/by_selection', "hrm\LeaveController@delete_by_selection");
+    Route::post('leave_type/delete/by_selection', "hrm\LeaveTypeController@delete_by_selection");
 
-
-     //------------------------------- holiday ----------------------\\
-    //----------------------------------------------------------------\\
+    // ------------------------------- holiday ----------------------\\
+    // ----------------------------------------------------------------\\
 
     Route::resource('holiday', 'hrm\HolidayController');
-    Route::post("holiday/delete/by_selection", "hrm\HolidayController@delete_by_selection");
+    Route::post('holiday/delete/by_selection', "hrm\HolidayController@delete_by_selection");
 
-      //------------------------------- payroll ----------------------\\
-    //----------------------------------------------------------------\\
+    // ------------------------------- payroll ----------------------\\
+    // ----------------------------------------------------------------\\
 
     Route::resource('payroll', 'hrm\PayrollController');
 
-    //------------------------------- core --------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- core --------------------------\\
+    // --------------------------------------------------------------------\\
 
     Route::prefix('core')->group(function () {
 
-       Route::get("get_departments_by_company", "hrm\CoreController@Get_departments_by_company");
-       Route::get("get_designations_by_department", "hrm\CoreController@Get_designations_by_department");
-       Route::get("get_office_shift_by_company", "hrm\CoreController@Get_office_shift_by_company");
-       Route::get("get_employees_by_company", "hrm\CoreController@Get_employees_by_company");
+        Route::get('get_departments_by_company', "hrm\CoreController@Get_departments_by_company");
+        Route::get('get_designations_by_department', "hrm\CoreController@Get_designations_by_department");
+        Route::get('get_office_shift_by_company', "hrm\CoreController@Get_office_shift_by_company");
+        Route::get('get_employees_by_company', "hrm\CoreController@Get_employees_by_company");
 
     });
 
-
-    //------------------------------- CLIENTS --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- CLIENTS --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('clients', 'ClientController');
     Route::post('clients/import/csv', 'ClientController@import_clients');
@@ -253,15 +244,13 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::post('clients_pay_return_due', 'ClientController@pay_sale_return_due');
     Route::get('get_client_store_data/{id}', 'ClientController@get_client_store_data');
 
-
-
-    //------------------------------- CLIENTS Ecommerce--------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- CLIENTS Ecommerce--------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('clients_without_ecommerce', 'ClientsEcommerceController');
 
-    //------------------------------- Providers --------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- Providers --------------------------\\
+    // --------------------------------------------------------------------\\
 
     Route::resource('providers', 'ProvidersController');
     Route::post('providers/import/csv', 'ProvidersController@import_providers');
@@ -269,58 +258,55 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::post('pay_supplier_due', 'ProvidersController@pay_supplier_due');
     Route::post('pay_purchase_return_due', 'ProvidersController@pay_purchase_return_due');
 
-    //---------------------- POS (point of sales) ----------------------\\
-    //------------------------------------------------------------------\\
+    // ---------------------- POS (point of sales) ----------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::post('pos/create_pos', 'PosController@CreatePOS');
     Route::get('pos/get_products_pos', [PosController::class, 'getProductsByParameter']);
     Route::get('pos/data_create_pos', 'PosController@GetELementPos');
 
-    //----------------------Draft -------------------------------------\\
-    //------------------------------------------------------------------\\
+    // ----------------------Draft -------------------------------------\\
+    // ------------------------------------------------------------------\\
     Route::post('pos/create_draft', 'PosController@CreateDraft');
     Route::get('get_draft_sales', 'PosController@get_draft_sales');
     Route::delete('remove_draft_sale/{id}', 'PosController@remove_draft_sale');
     Route::get('pos/data_draft_convert_sale/{id}', 'PosController@data_draft_convert_sale');
     Route::post('pos/submit_sale_from_draft', 'PosController@submit_sale_from_draft');
 
+    // ------------------------------- Project -----------------------\\
+    // ----------------------------------------------------------------\\
 
-       //------------------------------- Project -----------------------\\
-            //----------------------------------------------------------------\\
+    Route::resource('projects', 'ProjectController');
 
-            Route::resource('projects', 'ProjectController');
+    Route::post('projects/delete/by_selection', 'ProjectController@delete_by_selection');
+    Route::post('project_discussions', 'ProjectController@Create_project_discussions');
+    Route::delete('project_discussions/{id}', 'ProjectController@destroy_project_discussion');
 
-            Route::post("projects/delete/by_selection", "ProjectController@delete_by_selection");
-            Route::post("project_discussions", "ProjectController@Create_project_discussions");
-            Route::delete("project_discussions/{id}", "ProjectController@destroy_project_discussion");
+    Route::post('project_issues', 'ProjectController@Create_project_issues');
+    Route::put('project_issues/{id}', 'ProjectController@Update_project_issues');
+    Route::delete('project_issues/{id}', 'ProjectController@destroy_project_issues');
 
-            Route::post("project_issues", "ProjectController@Create_project_issues");
-            Route::put("project_issues/{id}", "ProjectController@Update_project_issues");
-            Route::delete("project_issues/{id}", "ProjectController@destroy_project_issues");
+    Route::post('project_documents', 'ProjectController@Create_project_documents');
+    Route::delete('project_documents/{id}', 'ProjectController@destroy_project_documents');
 
-            Route::post("project_documents", "ProjectController@Create_project_documents");
-            Route::delete("project_documents/{id}", "ProjectController@destroy_project_documents");
+    // ------------------------------- Task -----------------------\\
+    // ----------------------------------------------------------------\\
 
-            //------------------------------- Task -----------------------\\
-            //----------------------------------------------------------------\\
+    Route::resource('tasks', 'TaskController');
+    Route::put('update_task_status/{id}', 'TaskController@update_task_status');
 
-            Route::resource('tasks', 'TaskController');
-            Route::put("update_task_status/{id}", "TaskController@update_task_status");
+    Route::post('tasks/delete/by_selection', 'TaskController@delete_by_selection');
+    Route::get('tasks_kanban', 'TaskController@tasks_kanban')->name('tasks_kanban');
+    Route::post('task_change_status', 'TaskController@task_change_status')->name('task_change_status');
 
-            Route::post("tasks/delete/by_selection", "TaskController@delete_by_selection");
-            Route::get("tasks_kanban", "TaskController@tasks_kanban")->name('tasks_kanban');
-            Route::post("task_change_status", "TaskController@task_change_status")->name('task_change_status');
+    Route::post('task_discussions', 'TaskController@Create_task_discussions');
+    Route::delete('task_discussions/{id}', 'TaskController@destroy_task_discussion');
 
-            Route::post("task_discussions", "TaskController@Create_task_discussions");
-            Route::delete("task_discussions/{id}", "TaskController@destroy_task_discussion");
+    Route::post('task_documents', 'TaskController@Create_task_documents');
+    Route::delete('task_documents/{id}', 'TaskController@destroy_task_documents');
 
-            Route::post("task_documents", "TaskController@Create_task_documents");
-            Route::delete("task_documents/{id}", "TaskController@destroy_task_documents");
-
-
-
-    //------------------------------- PRODUCTS --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- PRODUCTS --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('products', ProductsController::class);
     Route::post('products/import/csv', 'ProductsController@import_products');
@@ -334,44 +320,41 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::get('get_import_stock', 'ProductsController@get_import_stock')->name('get_import_stock');
     Route::post('opening_stock_import', 'ProductsController@opening_stock_import');
 
+    // ---- count stock ----------
+    Route::get('count_stock', 'ProductsController@count_stock_list');
+    Route::post('store_count_stock', 'ProductsController@store_count_stock');
 
-     //---- count stock ----------
-     Route::get('count_stock', 'ProductsController@count_stock_list');
-     Route::post('store_count_stock', 'ProductsController@store_count_stock');
-
-
-    //------------------------------- Category --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Category --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('categories', 'CategorieController');
     Route::post('categories/delete/by_selection', 'CategorieController@delete_by_selection');
 
-    //------------------------------- Units --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Units --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('units', 'UnitsController');
     Route::get('get_sub_units_by_base', 'UnitsController@Get_Units_SubBase');
     Route::get('get_units', 'UnitsController@Get_sales_units');
 
-    //------------------------------- Brands--------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Brands--------------------------\\
+    // ------------------------------------------------------------------\\
     Route::resource('brands', 'BrandsController');
     Route::post('brands/delete/by_selection', 'BrandsController@delete_by_selection');
 
-    //------------------------------- Currencies --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Currencies --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('currencies', 'CurrencyController');
     Route::post('currencies/delete/by_selection', 'CurrencyController@delete_by_selection');
 
-
-    //------------------------------- WAREHOUSES --------------------------\\
+    // ------------------------------- WAREHOUSES --------------------------\\
 
     Route::resource('warehouses', 'WarehouseController');
     Route::post('warehouses/delete/by_selection', 'WarehouseController@delete_by_selection');
 
-    //------------------------------- PURCHASES --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- PURCHASES --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('purchases', 'PurchasesController');
     Route::get('get_payments_by_purchase/{id}', 'PurchasesController@Get_Payments');
@@ -381,19 +364,18 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::get('get_Products_by_purchase/{id}', 'PurchasesController@get_Products_by_purchase');
     Route::post('purchase_send_whatsapp', 'PurchasesController@purchase_send_whatsapp');
 
-
     Route::get('get_import_purchases', 'PurchasesController@get_import_purchases');
     Route::post('store_import_purchases', 'PurchasesController@store_import_purchases');
-    //------------------------------- Payments  Purchases --------------------------\\
-    //------------------------------------------------------------------------------\\
+    // ------------------------------- Payments  Purchases --------------------------\\
+    // ------------------------------------------------------------------------------\\
 
     Route::resource('payment_purchase', 'PaymentPurchasesController');
     Route::get('payment_purchase_get_number', 'PaymentPurchasesController@getNumberOrder');
     Route::post('payment_purchase_send_email', 'PaymentPurchasesController@SendEmail');
     Route::post('payment_purchase_send_sms', 'PaymentPurchasesController@Send_SMS');
 
-    //-------------------------------  Sales --------------------------\\
-    //------------------------------------------------------------------\\
+    // -------------------------------  Sales --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('sales', 'SalesController');
     Route::get('convert_to_sale_data/{id}', 'SalesController@Elemens_Change_To_Sale');
@@ -405,69 +387,64 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::post('sales_send_whatsapp', 'SalesController@sales_send_whatsapp');
     Route::get('get_today_sales', 'SalesController@get_today_sales');
 
-    //-------------------------------  Shipments --------------------------\\
-    //------------------------------------------------------------------\\
+    // -------------------------------  Shipments --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('shipments', 'ShipmentController');
 
-
-    //------------------------------- Payments  Sales --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Payments  Sales --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('payment_sale', 'PaymentSalesController');
     Route::get('payment_sale_get_number', 'PaymentSalesController@getNumberOrder');
     Route::post('payment_sale_send_email', 'PaymentSalesController@SendEmail');
     Route::post('payment_sale_send_sms', 'PaymentSalesController@Send_SMS');
 
-    //------------------------------- Expenses --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Expenses --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('expenses', 'ExpensesController');
     Route::post('expenses_delete_by_selection', 'ExpensesController@delete_by_selection');
 
-
-    //------------------------------- Expenses Category--------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Expenses Category--------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('expenses_category', 'CategoryExpenseController');
     Route::post('expenses_category_delete_by_selection', 'CategoryExpenseController@delete_by_selection');
 
-     //------------------------------- Accounts --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Accounts --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('accounts', 'AccountController');
     Route::post('accounts_delete_by_selection', 'AccountController@delete_by_selection');
 
-      //------------------------------- TransferMoneyController --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- TransferMoneyController --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('transfer_money', 'TransferMoneyController');
 
-
-    //------------------------------- Deposits --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Deposits --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('deposits', 'DepositsController');
     Route::post('deposits_delete_by_selection', 'DepositsController@delete_by_selection');
 
-
-    //------------------------------- deposits Category--------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- deposits Category--------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('deposits_category', 'CategoryDepositController');
     Route::post('deposits_category_delete_by_selection', 'CategoryDepositController@delete_by_selection');
 
-
-    //------------------------------- Quotations --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Quotations --------------------------\\
+    // ------------------------------------------------------------------\\
     Route::resource('quotations', 'QuotationsController');
     Route::post('quotations_send_email', 'QuotationsController@SendEmail');
     Route::post('quotations_send_sms', 'QuotationsController@Send_SMS');
     Route::post('quotations_delete_by_selection', 'QuotationsController@delete_by_selection');
     Route::post('quotation_send_whatsapp', 'QuotationsController@quotation_send_whatsapp');
 
-    //------------------------------- Sales Return --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Sales Return --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('returns/sale', 'SalesReturnController');
     Route::post('returns/sale/send/email', 'SalesReturnController@Send_Email');
@@ -477,8 +454,8 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::get('returns/sale/create_sell_return/{id}', 'SalesReturnController@create_sell_return');
     Route::get('returns/sale/edit_sell_return/{id}/{sale_id}', 'SalesReturnController@edit_sell_return');
 
-    //------------------------------- Purchases Return --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Purchases Return --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('returns/purchase', 'PurchasesReturnController');
     Route::post('returns/purchase/send/email', 'PurchasesReturnController@Send_Email');
@@ -488,36 +465,36 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::get('returns/purchase/create_purchase_return/{id}', 'PurchasesReturnController@create_purchase_return');
     Route::get('returns/purchase/edit_purchase_return/{id}/{purchase_id}', 'PurchasesReturnController@edit_purchase_return');
 
-    //------------------------------- Payment Sale Returns --------------------------\\
-    //--------------------------------------------------------------------------------\\
+    // ------------------------------- Payment Sale Returns --------------------------\\
+    // --------------------------------------------------------------------------------\\
 
     Route::resource('payment/returns_sale', 'PaymentSaleReturnsController');
     Route::get('payment/returns_sale/Number/order', 'PaymentSaleReturnsController@getNumberOrder');
     Route::post('payment/returns_sale/send/email', 'PaymentSaleReturnsController@SendEmail');
     Route::post('payment/returns_sale/send/sms', 'PaymentSaleReturnsController@Send_SMS');
 
-    //------------------------------- Payments Purchase Returns --------------------------\\
-    //---------------------------------------------------------------------------------------\\
+    // ------------------------------- Payments Purchase Returns --------------------------\\
+    // ---------------------------------------------------------------------------------------\\
 
     Route::resource('payment/returns_purchase', 'PaymentPurchaseReturnsController');
     Route::get('payment/returns_purchase/Number/Order', 'PaymentPurchaseReturnsController@getNumberOrder');
     Route::post('payment/returns_purchase/send/email', 'PaymentPurchaseReturnsController@SendEmail');
     Route::post('payment/returns_purchase/send/sms', 'PaymentPurchaseReturnsController@Send_SMS');
 
-    //------------------------------- Adjustments --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Adjustments --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('adjustments', 'AdjustmentController');
     Route::get('adjustments/detail/{id}', 'AdjustmentController@Adjustment_detail');
     Route::post('adjustments/delete/by_selection', 'AdjustmentController@delete_by_selection');
 
-    //------------------------------- Transfers --------------------------\\
-    //--------------------------------------------------------------------\\
+    // ------------------------------- Transfers --------------------------\\
+    // --------------------------------------------------------------------\\
     Route::resource('transfers', 'TransferController');
     Route::post('transfers/delete/by_selection', 'TransferController@delete_by_selection');
 
-    //------------------------------- Users --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Users --------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::get('get_user_auth', 'UserController@GetUserAuth');
     Route::resource('users', 'UserController');
@@ -525,33 +502,32 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::get('Get_user_profile', 'UserController@GetInfoProfile');
     Route::put('update_user_profile/{id}', 'UserController@updateProfile');
 
-    //------------------------------- Permission Groups user -----------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Permission Groups user -----------\\
+    // ------------------------------------------------------------------\\
 
     Route::resource('roles', 'PermissionsController');
     Route::resource('roles/check/create_page', 'PermissionsController@Check_Create_Page');
     Route::post('roles/delete/by_selection', 'PermissionsController@delete_by_selection');
 
-
-    //------------------------------- Settings ------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Settings ------------------------\\
+    // ------------------------------------------------------------------\\
     Route::resource('settings', 'SettingsController');
     Route::get('get_Settings_data', 'SettingsController@getSettings');
     Route::put('pos_settings/{id}', 'SettingsController@update_pos_settings');
     Route::get('get_pos_Settings', 'SettingsController@get_pos_Settings');
 
-    //------------------------------- appearance_settings ------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- appearance_settings ------------------------\\
+    // ------------------------------------------------------------------\\
 
     Route::get('get_appearance_settings', 'SettingsController@get_appearance_settings');
     Route::put('update_appearance_settings/{id}', 'SettingsController@update_appearance_settings');
 
-    //------------------------------- Mail Settings ------------------------\\
+    // ------------------------------- Mail Settings ------------------------\\
 
     Route::put('update_config_mail/{id}', 'MailSettingsController@update_config_mail');
     Route::get('get_config_mail', 'MailSettingsController@get_config_mail');
 
-    //------------------------------- SMS Settings ------------------------\\
+    // ------------------------------- SMS Settings ------------------------\\
 
     Route::get('get_sms_config', 'Sms_SettingsController@get_sms_config');
     Route::post('update_twilio_config', 'Sms_SettingsController@update_twilio_config');
@@ -568,25 +544,23 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
     Route::get('get_emails_template', 'Notifications_Template@get_emails_template');
     Route::put('update_custom_email', 'Notifications_Template@update_custom_email');
 
-
-    //------------------------------- Payment_gateway Settings ------------------------\\
+    // ------------------------------- Payment_gateway Settings ------------------------\\
 
     Route::post('payment_gateway', 'Payment_gateway_SettingsController@Update_payment_gateway');
     Route::get('get_payment_gateway', 'Payment_gateway_SettingsController@Get_payment_gateway');
 
-    //------------------------------- Update Settings ------------------------\\
+    // ------------------------------- Update Settings ------------------------\\
 
     Route::get('get_version_info', 'UpdateController@get_version_info');
 
-    //------------------------------- Backup --------------------------\\
-    //------------------------------------------------------------------\\
+    // ------------------------------- Backup --------------------------\\
+    // ------------------------------------------------------------------\\
 
-    Route::get("get_backup", "BackupController@Get_Backup");
-    Route::get("generate_new_backup", "BackupController@Generate_Backup");
-    Route::delete("delete_backup/{name}", "BackupController@Delete_Backup");
+    Route::get('get_backup', 'BackupController@Get_Backup');
+    Route::get('generate_new_backup', 'BackupController@Generate_Backup');
+    Route::delete('delete_backup/{name}', 'BackupController@Delete_Backup');
 
-
-    //------------------------------- Module Settings ------------------------\\
+    // ------------------------------- Module Settings ------------------------\\
 
     Route::get('get_modules_info', 'ModuleSettingsController@get_modules_info');
     Route::post('update_status_module', 'ModuleSettingsController@update_status_module');
@@ -594,21 +568,20 @@ Route::middleware(['auth:api', 'Is_Active'])->group(function () {
 
 });
 
-    //-------------------------------  Print & PDF ------------------------\\
-    //------------------------------------------------------------------\\
+// -------------------------------  Print & PDF ------------------------\\
+// ------------------------------------------------------------------\\
 
-    Route::get('sale_pdf/{id}', 'SalesController@Sale_PDF');
-    Route::get('quote_pdf/{id}', 'QuotationsController@Quotation_pdf');
-    Route::get('purchase_pdf/{id}', 'PurchasesController@Purchase_pdf');
-    Route::get('return_sale_pdf/{id}', 'SalesReturnController@Return_pdf');
-    Route::get('return_purchase_pdf/{id}', 'PurchasesReturnController@Return_pdf');
-    Route::get('payment_purchase_pdf/{id}', 'PaymentPurchasesController@Payment_purchase_pdf');
-    Route::get('payment_return_sale_pdf/{id}', 'PaymentSaleReturnsController@payment_return');
-    Route::get('payment_return_purchase_pdf/{id}', 'PaymentPurchaseReturnsController@payment_return');
-    Route::get('payment_sale_pdf/{id}', 'PaymentSalesController@payment_sale');
-    Route::get('sales_print_invoice/{id}', 'SalesController@Print_Invoice_POS');
-    Route::get('transfer_pdf/{id}', 'TransferController@transfer_pdf');
-    Route::get('adjustment_pdf/{id}', 'AdjustmentController@adjustment_pdf');
+Route::get('sale_pdf/{id}', 'SalesController@Sale_PDF');
+Route::get('quote_pdf/{id}', 'QuotationsController@Quotation_pdf');
+Route::get('purchase_pdf/{id}', 'PurchasesController@Purchase_pdf');
+Route::get('return_sale_pdf/{id}', 'SalesReturnController@Return_pdf');
+Route::get('return_purchase_pdf/{id}', 'PurchasesReturnController@Return_pdf');
+Route::get('payment_purchase_pdf/{id}', 'PaymentPurchasesController@Payment_purchase_pdf');
+Route::get('payment_return_sale_pdf/{id}', 'PaymentSaleReturnsController@payment_return');
+Route::get('payment_return_purchase_pdf/{id}', 'PaymentPurchaseReturnsController@payment_return');
+Route::get('payment_sale_pdf/{id}', 'PaymentSalesController@payment_sale');
+Route::get('sales_print_invoice/{id}', 'SalesController@Print_Invoice_POS');
+Route::get('transfer_pdf/{id}', 'TransferController@transfer_pdf');
+Route::get('adjustment_pdf/{id}', 'AdjustmentController@adjustment_pdf');
 
-
-    // Route::get('/available-modules', 'ModuleSettingsController@get_modules_enabled');
+// Route::get('/available-modules', 'ModuleSettingsController@get_modules_enabled');

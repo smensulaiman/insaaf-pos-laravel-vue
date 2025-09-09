@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use \Nwidart\Modules\Facades\Module;
+use Nwidart\Modules\Facades\Module;
 
 class LoginController extends Controller
 {
@@ -35,10 +35,9 @@ class LoginController extends Controller
      * @return void
      */
 
-     /**
+    /**
      * Get the needed authorization credentials from the request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     protected function credentials(\Illuminate\Http\Request $request)
@@ -51,24 +50,25 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function showLoginForm(){
+    public function showLoginForm()
+    {
         $allModules = Module::all();
         $allEnabledModules = Module::allEnabled();
 
         $ModulesInstalled = [];
         $ModulesEnabled = [];
 
-        foreach($allModules as $key => $modules_name){
+        foreach ($allModules as $key => $modules_name) {
             $ModulesInstalled[] = $key;
         }
 
-        foreach($allEnabledModules as $key => $modules_name){
+        foreach ($allEnabledModules as $key => $modules_name) {
             $ModulesEnabled[] = $key;
         }
 
-        return view('auth.login',[
-            'ModulesInstalled' => $ModulesInstalled, 
-            'ModulesEnabled' => $ModulesEnabled, 
+        return view('auth.login', [
+            'ModulesInstalled' => $ModulesInstalled,
+            'ModulesEnabled' => $ModulesEnabled,
         ]);
     }
 }

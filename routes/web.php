@@ -1,9 +1,8 @@
 <?php
 
+use App\Http\Controllers\BaseController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\BaseController;
-use Modules\Store\Http\Controllers\StoreController;
 use Laravel\passport\Passport;
 
 /*
@@ -17,7 +16,7 @@ use Laravel\passport\Passport;
 |
  */
 
-//------------------------------------------------------------------\\
+// ------------------------------------------------------------------\\
 // Passport::routes();
 
 Route::post('/login', [
@@ -27,8 +26,7 @@ Route::post('/login', [
 
 Route::get('password/find/{token}', 'PasswordResetController@find');
 
-
-//------------------------------------------------------------------\\
+// ------------------------------------------------------------------\\
 
 $installed = Storage::disk('public')->exists('installed');
 
@@ -100,7 +98,7 @@ if ($installed === false) {
     });
 }
 
-//------------------------------------------------------------------\\
+// ------------------------------------------------------------------\\
 
 Route::group(['middleware' => ['web', 'auth:web', 'Is_Active']], function () {
 
@@ -113,35 +111,32 @@ Route::group(['middleware' => ['web', 'auth:web', 'Is_Active']], function () {
         }
     });
 
-
     Route::get('/{vue?}',
-      function () {
-        $installed = Storage::disk('public')->exists('installed');
-        $ModulesData = BaseController::get_Module_Info();
+        function () {
+            $installed = Storage::disk('public')->exists('installed');
+            $ModulesData = BaseController::get_Module_Info();
 
-        if ($installed === false) {
-            return redirect('/setup');
-        } else {
-            return view('layouts.master' , [
-                'ModulesInstalled' => $ModulesData['ModulesInstalled'],
-                'ModulesEnabled' => $ModulesData['ModulesEnabled'],
-            ]);
-        }
-    })->where('vue', '^(?!api|setup|update|update_database_module|password|module|store|online_store).*$');
+            if ($installed === false) {
+                return redirect('/setup');
+            } else {
+                return view('layouts.master', [
+                    'ModulesInstalled' => $ModulesData['ModulesInstalled'],
+                    'ModulesEnabled' => $ModulesData['ModulesEnabled'],
+                ]);
+            }
+        })->where('vue', '^(?!api|setup|update|update_database_module|password|module|store|online_store).*$');
 
 });
 
-    Auth::routes([
-        'register' => false,
-    ]);
+Auth::routes([
+    'register' => false,
+]);
 
-
-//------------------------- -UPDATE ----------------------------------------\\
+// ------------------------- -UPDATE ----------------------------------------\\
 
 Route::group(['middleware' => ['web', 'auth:web', 'Is_Active']], function () {
 
     Route::get('update_database_module/{module_name}', 'ModuleSettingsController@update_database_module')->name('update_database_module');
-
 
     Route::get('/update', 'UpdateController@viewStep1');
 
@@ -155,7 +150,3 @@ Route::group(['middleware' => ['web', 'auth:web', 'Is_Active']], function () {
     ]);
 
 });
-
-
-
-

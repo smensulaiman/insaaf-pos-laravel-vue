@@ -9,7 +9,7 @@ class ProductVariant extends Model
     protected $table = 'product_variants';
 
     protected $fillable = [
-        'product_id', 'name', 'qty','cost','price','code','image'
+        'product_id', 'name', 'qty', 'cost', 'price', 'code', 'image',
     ];
 
     protected $casts = [
@@ -18,5 +18,4 @@ class ProductVariant extends Model
         'cost' => 'double',
         'price' => 'double',
     ];
-
 }

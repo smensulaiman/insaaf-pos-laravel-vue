@@ -4,25 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\ProductWareHouse;
 use App\Models\Role;
+use App\Models\role_user;
 use App\Models\Setting;
 use App\Models\User;
-use App\Models\role_user;
-use App\Models\Warehouse;
 use App\Models\UserWarehouse;
+use App\Models\Warehouse;
 use App\utils\helpers;
-use Illuminate\Validation\Rule;
-use Config;
-use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Intervention\Image\ImageManagerStatic as Image;
-use \Nwidart\Modules\Facades\Module;
+use Nwidart\Modules\Facades\Module;
 
 class UserController extends BaseController
 {
-
-    //------------- GET ALL USERS---------\\
+    // ------------- GET ALL USERS---------\\
 
     public function index(request $request)
     {
@@ -35,22 +32,22 @@ class UserController extends BaseController
         $offSet = ($pageStart * $perPage) - $perPage;
         $order = $request->SortField;
         $dir = $request->SortType;
-        $helpers = new helpers();
+        $helpers = new helpers;
         // Filter fields With Params to retrieve
-        $columns = array(0 => 'username', 1 => 'statut', 2 => 'phone', 3 => 'email');
-        $param = array(0 => 'like', 1 => '=', 2 => 'like', 3 => 'like');
-        $data = array();
+        $columns = [0 => 'username', 1 => 'statut', 2 => 'phone', 3 => 'email'];
+        $param = [0 => 'like', 1 => '=', 2 => 'like', 3 => 'like'];
+        $data = [];
 
         $Role = Auth::user()->roles()->first();
         $ShowRecord = Role::findOrFail($Role->id)->inRole('record_view');
 
         $users = User::where(function ($query) use ($ShowRecord) {
-            if (!$ShowRecord) {
+            if (! $ShowRecord) {
                 return $query->where('id', '=', Auth::user()->id);
             }
         });
 
-        //Multiple Filter
+        // Multiple Filter
         $Filtred = $helpers->filter($users, $columns, $param, $request)
         // Search With Multiple Param
             ->where(function ($query) use ($request) {
@@ -63,7 +60,7 @@ class UserController extends BaseController
                 });
             });
         $totalRows = $Filtred->count();
-        if($perPage == "-1"){
+        if ($perPage == '-1') {
             $perPage = $totalRows;
         }
         $users = $Filtred->offset($offSet)
@@ -82,25 +79,25 @@ class UserController extends BaseController
         ]);
     }
 
-    //------------- GET USER Auth ---------\\
+    // ------------- GET USER Auth ---------\\
 
-   public function GetUserAuth(Request $request)
+    public function GetUserAuth(Request $request)
     {
-        $helpers = new Helpers();
+        $helpers = new Helpers;
         $user = Auth::user();
         $settings = Setting::first();
 
         $userData = [
-            'avatar'              => $user->avatar,
-            'username'            => $user->username,
-            'currency'            => $helpers->Get_Currency(),
-            'logo'                => $settings->logo ?? null,
-            'default_language'    => $settings->default_language ?? 'en',
-            'show_language'       => $settings->show_language ?? false,
-            'footer'              => $settings->footer ?? '',
-            'developed_by'        => $settings->developed_by ?? '',
-            'app_name'            => $settings->app_name ?? config('app.name'),
-            'page_title_suffix'   => $settings->page_title_suffix ?? '',
+            'avatar' => $user->avatar,
+            'username' => $user->username,
+            'currency' => $helpers->Get_Currency(),
+            'logo' => $settings->logo ?? null,
+            'default_language' => $settings->default_language ?? 'en',
+            'show_language' => $settings->show_language ?? false,
+            'footer' => $settings->footer ?? '',
+            'developed_by' => $settings->developed_by ?? '',
+            'app_name' => $settings->app_name ?? config('app.name'),
+            'page_title_suffix' => $settings->page_title_suffix ?? '',
         ];
 
         $permissions = $user->roles()->first()?->permissions->pluck('name') ?? [];
@@ -112,25 +109,25 @@ class UserController extends BaseController
 
         $ModulesEnabled = collect(Module::allEnabled())->map(function ($module) {
             $name = strtolower($module->getName());
+
             return [
-                'name'       => config("$name.name"),
-                'url'        => config("$name.url"),
-                'icon'       => config("$name.icon"),
+                'name' => config("$name.name"),
+                'url' => config("$name.url"),
+                'icon' => config("$name.icon"),
                 'permission' => config("$name.permission"),
             ];
         })->toArray();
 
         return response()->json([
-            'success'        => true,
-            'user'           => $userData,
-            'notifs'         => $productsAlerts,
-            'permissions'    => $permissions,
+            'success' => true,
+            'user' => $userData,
+            'notifs' => $productsAlerts,
+            'permissions' => $permissions,
             'ModulesEnabled' => $ModulesEnabled,
         ]);
     }
 
-
-    //------------- GET USER ROLES ---------\\
+    // ------------- GET USER ROLES ---------\\
 
     public function GetUserRole(Request $request)
     {
@@ -143,12 +140,13 @@ class UserController extends BaseController
                 $data[] = $permission->name;
 
             }
+
             return response()->json(['success' => true, 'data' => $data]);
         }
 
     }
 
-    //------------- STORE NEW USER ---------\\
+    // ------------- STORE NEW USER ---------\\
 
     public function store(Request $request)
     {
@@ -162,32 +160,32 @@ class UserController extends BaseController
             if ($request->hasFile('avatar')) {
 
                 $image = $request->file('avatar');
-                $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
+                $filename = rand(11111111, 99999999).$image->getClientOriginalName();
 
                 $image_resize = Image::make($image->getRealPath());
                 $image_resize->resize(128, 128);
-                $image_resize->save(public_path('/images/avatar/' . $filename));
+                $image_resize->save(public_path('/images/avatar/'.$filename));
 
             } else {
                 $filename = 'no_avatar.png';
             }
 
-            if($request['is_all_warehouses'] == '1' || $request['is_all_warehouses'] == 'true'){
+            if ($request['is_all_warehouses'] == '1' || $request['is_all_warehouses'] == 'true') {
                 $is_all_warehouses = 1;
-            }else{
+            } else {
                 $is_all_warehouses = 0;
             }
 
             $User = new User;
             $User->firstname = $request['firstname'];
-            $User->lastname  = $request['lastname'];
-            $User->username  = $request['username'];
-            $User->email     = $request['email'];
-            $User->phone     = $request['phone'];
-            $User->password  = Hash::make($request['password']);
-            $User->avatar    = $filename;
-            $User->role_id   = $request['role'];
-            $User->is_all_warehouses   = $is_all_warehouses;
+            $User->lastname = $request['lastname'];
+            $User->username = $request['username'];
+            $User->email = $request['email'];
+            $User->phone = $request['phone'];
+            $User->password = Hash::make($request['password']);
+            $User->avatar = $filename;
+            $User->role_id = $request['role'];
+            $User->is_all_warehouses = $is_all_warehouses;
             $User->save();
 
             $role_user = new role_user;
@@ -195,7 +193,7 @@ class UserController extends BaseController
             $role_user->role_id = $request['role'];
             $role_user->save();
 
-            if(!$User->is_all_warehouses){
+            if (! $User->is_all_warehouses) {
                 $User->assignedWarehouses()->sync($request['assigned_to']);
             }
 
@@ -204,9 +202,10 @@ class UserController extends BaseController
         return response()->json(['success' => true]);
     }
 
-    //------------ function show -----------\\
+    // ------------ function show -----------\\
 
-    public function show($id){
+    public function show($id)
+    {
         //
 
     }
@@ -223,7 +222,7 @@ class UserController extends BaseController
         ]);
     }
 
-    //------------- UPDATE  USER ---------\\
+    // ------------- UPDATE  USER ---------\\
 
     public function update(Request $request, $id)
     {
@@ -236,7 +235,7 @@ class UserController extends BaseController
             'email.unique' => 'This Email already taken.',
         ]);
 
-        \DB::transaction(function () use ($id ,$request) {
+        \DB::transaction(function () use ($id, $request) {
             $user = User::findOrFail($id);
             $current = $user->password;
 
@@ -255,14 +254,14 @@ class UserController extends BaseController
             if ($request->avatar != $currentAvatar) {
 
                 $image = $request->file('avatar');
-                $path = public_path() . '/images/avatar';
-                $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
+                $path = public_path().'/images/avatar';
+                $filename = rand(11111111, 99999999).$image->getClientOriginalName();
 
                 $image_resize = Image::make($image->getRealPath());
                 $image_resize->resize(128, 128);
-                $image_resize->save(public_path('/images/avatar/' . $filename));
+                $image_resize->save(public_path('/images/avatar/'.$filename));
 
-                $userPhoto = $path . '/' . $currentAvatar;
+                $userPhoto = $path.'/'.$currentAvatar;
                 if (file_exists($userPhoto)) {
                     if ($user->avatar != 'no_avatar.png') {
                         @unlink($userPhoto);
@@ -272,9 +271,9 @@ class UserController extends BaseController
                 $filename = $currentAvatar;
             }
 
-            if($request['is_all_warehouses'] == '1' || $request['is_all_warehouses'] == 'true'){
+            if ($request['is_all_warehouses'] == '1' || $request['is_all_warehouses'] == 'true') {
                 $is_all_warehouses = 1;
-            }else{
+            } else {
                 $is_all_warehouses = 0;
             }
 
@@ -292,7 +291,7 @@ class UserController extends BaseController
 
             ]);
 
-            role_user::where('user_id' , $id)->update([
+            role_user::where('user_id', $id)->update([
                 'user_id' => $id,
                 'role_id' => $request['role'],
             ]);
@@ -306,8 +305,7 @@ class UserController extends BaseController
 
     }
 
-
-    //------------- UPDATE PROFILE ---------\\
+    // ------------- UPDATE PROFILE ---------\\
 
     public function updateProfile(Request $request, $id)
     {
@@ -319,7 +317,7 @@ class UserController extends BaseController
             'email' => 'required|email|unique:users',
             'email' => Rule::unique('users')->ignore($id),
             'phone' => 'required',
-            ]
+        ]
         );
 
         $id = Auth::user()->id;
@@ -341,14 +339,14 @@ class UserController extends BaseController
         if ($request->avatar != $currentAvatar) {
 
             $image = $request->file('avatar');
-            $path = public_path() . '/images/avatar';
-            $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
+            $path = public_path().'/images/avatar';
+            $filename = rand(11111111, 99999999).$image->getClientOriginalName();
 
             $image_resize = Image::make($image->getRealPath());
             $image_resize->resize(128, 128);
-            $image_resize->save(public_path('/images/avatar/' . $filename));
+            $image_resize->save(public_path('/images/avatar/'.$filename));
 
-            $userPhoto = $path . '/' . $currentAvatar;
+            $userPhoto = $path.'/'.$currentAvatar;
 
             if (file_exists($userPhoto)) {
                 if ($user->avatar != 'no_avatar.png') {
@@ -374,7 +372,7 @@ class UserController extends BaseController
 
     }
 
-    //----------- IsActivated (Update Statut User) -------\\
+    // ----------- IsActivated (Update Statut User) -------\\
 
     public function IsActivated(request $request, $id)
     {
@@ -386,6 +384,7 @@ class UserController extends BaseController
             User::whereId($id)->update([
                 'statut' => $request['statut'],
             ]);
+
             return response()->json([
                 'success' => true,
             ]);
@@ -408,16 +407,17 @@ class UserController extends BaseController
             }
             $data[] = $item;
         }
+
         return $data[0];
 
     }
 
-    //------------- GET USER Auth ---------\\
+    // ------------- GET USER Auth ---------\\
 
     public function GetInfoProfile(Request $request)
     {
         $data = Auth::user();
+
         return response()->json(['success' => true, 'user' => $data]);
     }
-
 }

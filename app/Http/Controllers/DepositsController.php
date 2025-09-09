@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\User;
+
 use App\Models\Account;
 use App\Models\Deposit;
 use App\Models\DepositCategory;
 use App\Models\Role;
+use App\Models\User;
 use App\utils\helpers;
 use Carbon\Carbon;
 use DB;
@@ -14,8 +15,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DepositsController extends BaseController
 {
-
-    //-------------- Show All  Deposits -----------\\
+    // -------------- Show All  Deposits -----------\\
 
     public function index(request $request)
     {
@@ -28,26 +28,26 @@ class DepositsController extends BaseController
         $offSet = ($pageStart * $perPage) - $perPage;
         $order = $request->SortField;
         $dir = $request->SortType;
-        $helpers = new helpers();
+        $helpers = new helpers;
         $role = Auth::user()->roles()->first();
         $view_records = Role::findOrFail($role->id)->inRole('record_view');
         // Filter fields With Params to retrieve
-        $columns = array(0 => 'deposit_ref', 1 => 'account_id', 2 => 'date', 3 => 'deposit_category_id');
-        $param = array(0 => 'like', 1 => '=', 2 => '=', 3 => '=');
-        $data = array();
+        $columns = [0 => 'deposit_ref', 1 => 'account_id', 2 => 'date', 3 => 'deposit_category_id'];
+        $param = [0 => 'like', 1 => '=', 2 => '=', 3 => '='];
+        $data = [];
 
         // Check If User Has Permission View  All Records
         $Deposits = Deposit::with('deposit_category', 'account')
             ->where('deleted_at', '=', null)
             ->where(function ($query) use ($view_records) {
-                if (!$view_records) {
+                if (! $view_records) {
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             });
 
-        //Multiple Filter
+        // Multiple Filter
         $Filtred = $helpers->filter($Deposits, $columns, $param, $request)
-        //Search With Multiple Param
+        // Search With Multiple Param
             ->where(function ($query) use ($request) {
                 return $query->when($request->filled('search'), function ($query) use ($request) {
                     return $query->where('deposit_ref', 'LIKE', "%{$request->search}%")
@@ -65,7 +65,7 @@ class DepositsController extends BaseController
                 });
             });
         $totalRows = $Filtred->count();
-        if($perPage == "-1"){
+        if ($perPage == '-1') {
             $perPage = $totalRows;
         }
         $Deposits = $Filtred->offset($offSet)
@@ -80,7 +80,7 @@ class DepositsController extends BaseController
             $item['deposit_ref'] = $Deposit->deposit_ref;
             $item['description'] = $Deposit->description;
             $item['amount'] = $Deposit->amount;
-            $item['account_name'] = $Deposit['account']?$Deposit['account']->account_name:'N/D';
+            $item['account_name'] = $Deposit['account'] ? $Deposit['account']->account_name : 'N/D';
             $item['category_name'] = $Deposit['deposit_category']->title;
             $data[] = $item;
         }
@@ -97,7 +97,7 @@ class DepositsController extends BaseController
 
     }
 
-    //-------------- Store New Deposit -----------\\
+    // -------------- Store New Deposit -----------\\
 
     public function store(Request $request)
     {
@@ -122,7 +122,7 @@ class DepositsController extends BaseController
 
             $account = Account::find($request['deposit']['account_id']);
 
-            if($account){
+            if ($account) {
                 $account->update([
                     'balance' => $account->balance + $request['deposit']['amount'],
                 ]);
@@ -133,31 +133,32 @@ class DepositsController extends BaseController
         return response()->json(['success' => true]);
     }
 
-    //------------ function show -----------\\
+    // ------------ function show -----------\\
 
-    public function show($id){
+    public function show($id)
+    {
         //
-        
-        }
 
-    //-------------- Update  Deposit -----------\\
+    }
+
+    // -------------- Update  Deposit -----------\\
 
     public function update(Request $request, $id)
     {
 
         $this->authorizeForUser($request->user('api'), 'update', Deposit::class);
 
-        \DB::transaction(function () use ($request , $id) {
+        \DB::transaction(function () use ($request, $id) {
             $role = Auth::user()->roles()->first();
             $view_records = Role::findOrFail($role->id)->inRole('record_view');
             $deposit = Deposit::findOrFail($id);
 
             // Check If User Has Permission view All Records
-            if (!$view_records) {
+            if (! $view_records) {
                 // Check If User->id === deposit->id
                 $this->authorizeForUser($request->user('api'), 'check_record', $deposit);
             }
-       
+
             request()->validate([
                 'deposit.date' => 'required',
                 'deposit.category_id' => 'required',
@@ -174,14 +175,14 @@ class DepositsController extends BaseController
 
             Deposit::whereId($id)->update([
                 'date' => $request['deposit']['date'],
-                'account_id' => $request['deposit']['account_id']?$request['deposit']['account_id']:NULL,
+                'account_id' => $request['deposit']['account_id'] ? $request['deposit']['account_id'] : null,
                 'deposit_category_id' => $request['deposit']['category_id'],
                 'description' => $request['deposit']['description'],
                 'amount' => $request['deposit']['amount'],
             ]);
 
             $account = Account::find($request['deposit']['account_id']);
-            if($account){
+            if ($account) {
                 $account->update([
                     'balance' => $account->balance + $request['deposit']['amount'],
                 ]);
@@ -192,7 +193,7 @@ class DepositsController extends BaseController
         return response()->json(['success' => true]);
     }
 
-    //-------------- Delete Deposit -----------\\
+    // -------------- Delete Deposit -----------\\
 
     public function destroy(Request $request, $id)
     {
@@ -202,7 +203,7 @@ class DepositsController extends BaseController
         $deposit = Deposit::findOrFail($id);
 
         // Check If User Has Permission view All Records
-        if (!$view_records) {
+        if (! $view_records) {
             // Check If User->id === deposit->id
             $this->authorizeForUser($request->user('api'), 'check_record', $deposit);
         }
@@ -224,7 +225,7 @@ class DepositsController extends BaseController
         return response()->json(['success' => true]);
     }
 
-    //-------------- Delete by selection  ---------------\\
+    // -------------- Delete by selection  ---------------\\
 
     public function delete_by_selection(Request $request)
     {
@@ -237,7 +238,7 @@ class DepositsController extends BaseController
             $deposit = Deposit::findOrFail($deposit_id);
 
             // Check If User Has Permission view All Records
-            if (!$view_records) {
+            if (! $view_records) {
                 // Check If User->id === deposit->id
                 $this->authorizeForUser($request->user('api'), 'check_record', $deposit);
             }
@@ -255,12 +256,13 @@ class DepositsController extends BaseController
             Deposit::whereId($deposit_id)->update([
                 'deleted_at' => Carbon::now(),
             ]);
-            
+
         }
+
         return response()->json(['success' => true]);
     }
 
-    //--------------- Reference Number of Deposit ----------------\\
+    // --------------- Reference Number of Deposit ----------------\\
 
     public function getNumberOrder()
     {
@@ -269,18 +271,18 @@ class DepositsController extends BaseController
 
         if ($last) {
             $item = $last->deposit_ref;
-            $nwMsg = explode("_", $item);
+            $nwMsg = explode('_', $item);
             $inMsg = $nwMsg[1] + 1;
-            $code = $nwMsg[0] . '_' . $inMsg;
+            $code = $nwMsg[0].'_'.$inMsg;
         } else {
             $code = 'DP_1111';
         }
+
         return $code;
 
     }
 
-
-    //---------------- Show Form Create Deposit ---------------\\
+    // ---------------- Show Form Create Deposit ---------------\\
 
     public function create(Request $request)
     {
@@ -296,7 +298,7 @@ class DepositsController extends BaseController
         ]);
     }
 
-    //------------- Show Form Edit Deposit -----------\\
+    // ------------- Show Form Edit Deposit -----------\\
 
     public function edit(Request $request, $id)
     {
@@ -307,7 +309,7 @@ class DepositsController extends BaseController
         $Deposit = Deposit::where('deleted_at', '=', null)->findOrFail($id);
 
         // Check If User Has Permission view All Records
-        if (!$view_records) {
+        if (! $view_records) {
             // Check If User->id === Deposit->id
             $this->authorizeForUser($request->user('api'), 'check_record', $Deposit);
         }
@@ -340,7 +342,6 @@ class DepositsController extends BaseController
         $data['amount'] = $Deposit->amount;
         $data['description'] = $Deposit->description;
 
-
         $deposit_category = DepositCategory::where('deleted_at', '=', null)->get(['id', 'title']);
         $accounts = Account::where('deleted_at', '=', null)->get(['id', 'account_name']);
 
@@ -350,5 +351,4 @@ class DepositsController extends BaseController
             'accounts' => $accounts,
         ]);
     }
-
 }

@@ -9,7 +9,7 @@ class Expense extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'date', 'user_id', 'expense_category_id', 'warehouse_id', 'details','account_id','payment_method_id',
+        'date', 'user_id', 'expense_category_id', 'warehouse_id', 'details', 'account_id', 'payment_method_id',
         'amount', 'Ref', 'created_at', 'updated_at', 'deleted_at',
     ];
 
@@ -46,5 +46,4 @@ class Expense extends Model
     {
         return $this->belongsTo('App\Models\User');
     }
-
 }

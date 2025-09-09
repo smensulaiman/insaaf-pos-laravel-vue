@@ -13,12 +13,12 @@ class CurrencySeeder extends Seeder
     public function run()
     {
         DB::table('currencies')->insert(
-            array(
+            [
                 'id' => 1,
                 'code' => 'JPY',
                 'name' => 'Japanese yen',
                 'symbol' => '¥',
-            )
+            ]
         );
     }
 }

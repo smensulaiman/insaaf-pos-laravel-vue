@@ -2,14 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Support\Facades\View;
-use App\Models\Category;
-use App\Models\StoreContact;
-use App\Models\SocialMediaUrl;
 use App\Models\Banner;
+use App\Models\Category;
+use App\Models\SocialMediaUrl;
+use App\Models\StoreContact;
 use App\Models\StoreSetting;
 use App\utils\helpers;
+use Closure;
+use Illuminate\Support\Facades\View;
 
 class StoreDataMiddleware
 {
@@ -57,7 +57,7 @@ class StoreDataMiddleware
                 'banner2_path' => '',
             ];
 
-            $helpers = new Helpers();
+            $helpers = new Helpers;
             $symbol_currency = $helpers->Get_Currency();
 
             $StoreSetting = StoreSetting::whereNull('deleted_at')->first();

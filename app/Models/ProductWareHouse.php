@@ -9,7 +9,7 @@ class ProductWareHouse extends Model
     protected $table = 'product_warehouse';
 
     protected $fillable = [
-        'product_id', 'warehouse_id', 'qte','manage_stock'
+        'product_id', 'warehouse_id', 'qte', 'manage_stock',
     ];
 
     protected $casts = [
@@ -33,5 +33,4 @@ class ProductWareHouse extends Model
     {
         return $this->belongsTo(ProductVariant::class);
     }
-
 }

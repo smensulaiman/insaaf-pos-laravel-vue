@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateCurrenciesTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -34,5 +33,4 @@ class CreateCurrenciesTable extends Migration
     {
         Schema::drop('currencies');
     }
-
 }

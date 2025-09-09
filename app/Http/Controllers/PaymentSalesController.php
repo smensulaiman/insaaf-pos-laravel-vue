@@ -1,43 +1,40 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Twilio\Rest\Client as Client_Twilio;
+use App\Mail\CustomEmail;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\EmailMessage;
+use App\Models\PaymentMethod;
+use App\Models\PaymentSale;
+use App\Models\PaymentWithCreditCard;
+use App\Models\Role;
+use App\Models\Sale;
+use App\Models\Setting;
+use App\Models\sms_gateway;
+use App\Models\SMSMessage;
+use App\utils\helpers;
+use ArPHP\I18N\Arabic;
+use Carbon\Carbon;
+use DB;
 use GuzzleHttp\Client as Client_guzzle;
 use GuzzleHttp\Client as Client_termi;
-use App\Models\SMSMessage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Infobip\Api\SendSmsApi;
 use Infobip\Configuration;
 use Infobip\Model\SmsAdvancedTextualRequest;
 use Infobip\Model\SmsDestination;
 use Infobip\Model\SmsTextualMessage;
-use Illuminate\Support\Str;
-use App\Models\EmailMessage;
-use App\Mail\CustomEmail;
-use App\utils\helpers;
-use App\Models\Account;
-
-use App\Models\PaymentMethod;
-use App\Mail\Payment_Sale;
-use App\Models\Client;
-use App\Models\PaymentSale;
-use App\Models\Role;
-use App\Models\Sale;
-use App\Models\Setting;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use App\Models\PaymentWithCreditCard;
-use App\Models\sms_gateway;
-use Stripe;
-use DB;
 use PDF;
-use ArPHP\I18N\Arabic;
+use Stripe;
+use Twilio\Rest\Client as Client_Twilio;
 
 class PaymentSalesController extends BaseController
 {
-
-    //------------- Get All Payments Sales --------------\\
+    // ------------- Get All Payments Sales --------------\\
 
     public function index(request $request)
     {
@@ -50,20 +47,20 @@ class PaymentSalesController extends BaseController
         $offSet = ($pageStart * $perPage) - $perPage;
         $order = $request->SortField;
         $dir = $request->SortType;
-        $helpers = new helpers();
+        $helpers = new helpers;
         $role = Auth::user()->roles()->first();
         $view_records = Role::findOrFail($role->id)->inRole('record_view');
         // Filter fields With Params to retriever
-        $param = array(0 => 'like', 1 => '=', 2 => '=');
-        $columns = array(0 => 'Ref', 1 => 'sale_id', 2 => 'payment_method_id');
-        $data = array();
+        $param = [0 => 'like', 1 => '=', 2 => '='];
+        $columns = [0 => 'Ref', 1 => 'sale_id', 2 => 'payment_method_id'];
+        $data = [];
 
         // Check If User Has Permission View  All Records
-        $Payments = PaymentSale::with('sale.client','account')
+        $Payments = PaymentSale::with('sale.client', 'account')
             ->where('deleted_at', '=', null)
-            ->whereBetween('date', array($request->from, $request->to))
+            ->whereBetween('date', [$request->from, $request->to])
             ->where(function ($query) use ($view_records) {
-                if (!$view_records) {
+                if (! $view_records) {
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
@@ -100,7 +97,7 @@ class PaymentSalesController extends BaseController
             });
 
         $totalRows = $Filtred->count();
-        if($perPage == "-1"){
+        if ($perPage == '-1') {
             $perPage = $totalRows;
         }
         $Payments = $Filtred->offset($offSet)
@@ -110,13 +107,13 @@ class PaymentSalesController extends BaseController
 
         foreach ($Payments as $Payment) {
 
-            $item['date']          = $Payment->date;
-            $item['Ref']           = $Payment->Ref;
-            $item['Ref_Sale']      = $Payment['sale']->Ref;
-            $item['client_name']   = $Payment['sale']['client']->name;
+            $item['date'] = $Payment->date;
+            $item['Ref'] = $Payment->Ref;
+            $item['Ref_Sale'] = $Payment['sale']->Ref;
+            $item['client_name'] = $Payment['sale']['client']->name;
             $item['payment_method'] = $Payment['payment_method']->name;
-            $item['montant']       = $Payment->montant;
-            $item['account_name']  = $Payment['account']?$Payment['account']->account_name:'---';
+            $item['montant'] = $Payment->montant;
+            $item['account_name'] = $Payment['account'] ? $Payment['account']->account_name : '---';
             $data[] = $item;
         }
 
@@ -134,20 +131,20 @@ class PaymentSalesController extends BaseController
 
     }
 
-    //----------- Store new Payment Sale --------------\\
+    // ----------- Store new Payment Sale --------------\\
 
     public function store(Request $request)
     {
         $this->authorizeForUser($request->user('api'), 'create', PaymentSale::class);
 
         \DB::transaction(function () use ($request) {
-            $helpers = new helpers();
+            $helpers = new helpers;
             $role = Auth::user()->roles()->first();
             $view_records = Role::findOrFail($role->id)->inRole('record_view');
             $sale = Sale::findOrFail($request['sale_id']);
 
             // Check If User Has Permission view All Records
-            if (!$view_records) {
+            if (! $view_records) {
                 // Check If User->id === sale->id
                 $this->authorizeForUser($request->user('api'), 'check_record', $sale);
             }
@@ -159,40 +156,40 @@ class PaymentSalesController extends BaseController
 
                 if ($due === 0.0 || $due < 0.0) {
                     $payment_statut = 'paid';
-                } else if ($due !== $sale->GrandTotal) {
+                } elseif ($due !== $sale->GrandTotal) {
                     $payment_statut = 'partial';
-                } else if ($due === $sale->GrandTotal) {
+                } elseif ($due === $sale->GrandTotal) {
                     $payment_statut = 'unpaid';
                 }
 
-                if($request['montant'] > 0){
+                if ($request['montant'] > 0) {
                     if ($request['payment_method_id'] == 1 || $request['payment_method_id'] == '1') {
                         $Client = Client::whereId($sale->client_id)->first();
                         Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
 
                         // Check if the payment record exists
                         $PaymentWithCreditCard = PaymentWithCreditCard::where('customer_id', $sale->client_id)->first();
-                        if (!$PaymentWithCreditCard) {
+                        if (! $PaymentWithCreditCard) {
 
                             // Create a new customer and charge the customer with a new credit card
                             $customer = \Stripe\Customer::create([
                                 'source' => $request->token,
-                                'email'  => $Client->email,
-                                'name'   => $Client->name,
+                                'email' => $Client->email,
+                                'name' => $Client->name,
                             ]);
 
                             // Charge the Customer instead of the card:
                             $charge = \Stripe\Charge::create([
-                                'amount'   => $request['montant'] * 100,
+                                'amount' => $request['montant'] * 100,
                                 'currency' => 'usd',
                                 'customer' => $customer->id,
                             ]);
                             $PaymentCard['customer_stripe_id'] = $customer->id;
 
-                        // Check if the payment record not exists
+                            // Check if the payment record not exists
                         } else {
 
-                             // Retrieve the customer ID and card ID
+                            // Retrieve the customer ID and card ID
                             $customer_id = $PaymentWithCreditCard->customer_stripe_id;
                             $card_id = $request->card_id;
 
@@ -205,40 +202,39 @@ class PaymentSalesController extends BaseController
                                 $card = \Stripe\Customer::createSource(
                                     $customer_id,
                                     [
-                                      'source' => $request->token,
+                                        'source' => $request->token,
                                     ]
-                                  );
+                                );
 
                                 $charge = \Stripe\Charge::create([
-                                    'amount'   => $request['montant'] * 100,
+                                    'amount' => $request['montant'] * 100,
                                     'currency' => 'usd',
                                     'customer' => $customer_id,
-                                    'source'   => $card->id,
+                                    'source' => $card->id,
                                 ]);
                                 $PaymentCard['customer_stripe_id'] = $customer_id;
 
                             } else {
                                 $charge = \Stripe\Charge::create([
-                                    'amount'   => $request['montant'] * 100,
+                                    'amount' => $request['montant'] * 100,
                                     'currency' => 'usd',
                                     'customer' => $customer_id,
-                                    'source'   => $card_id,
+                                    'source' => $card_id,
                                 ]);
                                 $PaymentCard['customer_stripe_id'] = $customer_id;
                             }
                         }
 
-
-                        $PaymentSale            = new PaymentSale();
-                        $PaymentSale->sale_id   = $sale->id;
-                        $PaymentSale->Ref       = app('App\Http\Controllers\PaymentSalesController')->getNumberOrder();
-                        $PaymentSale->date       = $request['date'];
-                        $PaymentSale->account_id = $request['account_id']?$request['account_id']:NULL;
+                        $PaymentSale = new PaymentSale;
+                        $PaymentSale->sale_id = $sale->id;
+                        $PaymentSale->Ref = app('App\Http\Controllers\PaymentSalesController')->getNumberOrder();
+                        $PaymentSale->date = $request['date'];
+                        $PaymentSale->account_id = $request['account_id'] ? $request['account_id'] : null;
                         $PaymentSale->payment_method_id = $request['payment_method_id'];
-                        $PaymentSale->montant   = $request['montant'];
-                        $PaymentSale->change    = $request['change'];
-                        $PaymentSale->notes     = $request['notes'];
-                        $PaymentSale->user_id   = Auth::user()->id;
+                        $PaymentSale->montant = $request['montant'];
+                        $PaymentSale->change = $request['change'];
+                        $PaymentSale->notes = $request['notes'];
+                        $PaymentSale->user_id = Auth::user()->id;
                         $PaymentSale->save();
 
                         $account = Account::where('id', $request['account_id'])->exists();
@@ -252,28 +248,28 @@ class PaymentSalesController extends BaseController
                         }
 
                         $sale->update([
-                            'paid_amount'    => $total_paid,
+                            'paid_amount' => $total_paid,
                             'payment_statut' => $payment_statut,
                         ]);
 
                         $PaymentCard['customer_id'] = $sale->client_id;
-                        $PaymentCard['payment_id']  = $PaymentSale->id;
-                        $PaymentCard['charge_id']   = $charge->id;
+                        $PaymentCard['payment_id'] = $PaymentSale->id;
+                        $PaymentCard['charge_id'] = $charge->id;
                         PaymentWithCreditCard::create($PaymentCard);
 
                         // Paying Method Cash
                     } else {
 
                         PaymentSale::create([
-                            'sale_id'   => $sale->id,
-                            'Ref'       => app('App\Http\Controllers\PaymentSalesController')->getNumberOrder(),
-                            'date'      => Carbon::now(),
-                            'account_id' => $request['account_id']?$request['account_id']:NULL,
+                            'sale_id' => $sale->id,
+                            'Ref' => app('App\Http\Controllers\PaymentSalesController')->getNumberOrder(),
+                            'date' => Carbon::now(),
+                            'account_id' => $request['account_id'] ? $request['account_id'] : null,
                             'payment_method_id' => $request['payment_method_id'],
-                            'montant'   => $request['montant'],
-                            'change'    => $request['change'],
-                            'notes'     => $request['notes'],
-                            'user_id'   => Auth::user()->id,
+                            'montant' => $request['montant'],
+                            'change' => $request['change'],
+                            'notes' => $request['notes'],
+                            'user_id' => Auth::user()->id,
                         ]);
 
                         $account = Account::where('id', $request['account_id'])->exists();
@@ -287,7 +283,7 @@ class PaymentSalesController extends BaseController
                         }
 
                         $sale->update([
-                            'paid_amount'    => $total_paid,
+                            'paid_amount' => $total_paid,
                             'payment_statut' => $payment_statut,
                         ]);
                     }
@@ -303,27 +299,28 @@ class PaymentSalesController extends BaseController
         return response()->json(['success' => true, 'message' => 'Payment Create successfully'], 200);
     }
 
-    //------------ function show -----------\\
+    // ------------ function show -----------\\
 
-    public function show($id){
-    //
-        
+    public function show($id)
+    {
+        //
+
     }
 
-    //----------- Update Payments Sale --------------\\
+    // ----------- Update Payments Sale --------------\\
 
     public function update(Request $request, $id)
     {
         $this->authorizeForUser($request->user('api'), 'update', PaymentSale::class);
 
         \DB::transaction(function () use ($id, $request) {
-            $helpers = new helpers();
+            $helpers = new helpers;
             $role = Auth::user()->roles()->first();
             $view_records = Role::findOrFail($role->id)->inRole('record_view');
             $payment = PaymentSale::findOrFail($id);
 
             // Check If User Has Permission view All Records
-            if (!$view_records) {
+            if (! $view_records) {
                 // Check If User->id === payment->id
                 $this->authorizeForUser($request->user('api'), 'check_record', $payment);
             }
@@ -335,52 +332,52 @@ class PaymentSalesController extends BaseController
             $due = $sale->GrandTotal - $new_total_paid;
             if ($due === 0.0 || $due < 0.0) {
                 $payment_statut = 'paid';
-            } else if ($due !== $sale->GrandTotal) {
+            } elseif ($due !== $sale->GrandTotal) {
                 $payment_statut = 'partial';
-            } else if ($due === $sale->GrandTotal) {
+            } elseif ($due === $sale->GrandTotal) {
                 $payment_statut = 'unpaid';
             }
 
-             //delete old balance
-             $account = Account::where('id', $payment->account_id)->exists();
+            // delete old balance
+            $account = Account::where('id', $payment->account_id)->exists();
 
-             if ($account) {
-                 // Account exists, perform the update
-                 $account = Account::find($payment->account_id);
-                 $account->update([
-                     'balance' => $account->balance - $payment->montant,
-                 ]);
-             }
+            if ($account) {
+                // Account exists, perform the update
+                $account = Account::find($payment->account_id);
+                $account->update([
+                    'balance' => $account->balance - $payment->montant,
+                ]);
+            }
 
             try {
-                 if ($payment->payment_method_id != 1 && $payment->payment_method_id != '1') {
+                if ($payment->payment_method_id != 1 && $payment->payment_method_id != '1') {
 
                     $payment->update([
-                        'date'      => $request['date'],
+                        'date' => $request['date'],
                         'payment_method_id' => $request['payment_method_id'],
-                        'account_id' => $request['account_id']?$request['account_id']:NULL,
-                        'montant'   => $request['montant'],
-                        'change'    => $request['change'],
-                        'notes'     => $request['notes'],
+                        'account_id' => $request['account_id'] ? $request['account_id'] : null,
+                        'montant' => $request['montant'],
+                        'change' => $request['change'],
+                        'notes' => $request['notes'],
                     ]);
 
-                     //update new account
-                     $new_account = Account::where('id', $request['account_id'])->exists();
+                    // update new account
+                    $new_account = Account::where('id', $request['account_id'])->exists();
 
-                     if ($new_account) {
-                         // Account exists, perform the update
-                         $new_account = Account::find($request['account_id']);
-                         $new_account->update([
+                    if ($new_account) {
+                        // Account exists, perform the update
+                        $new_account = Account::find($request['account_id']);
+                        $new_account->update([
                             'balance' => $new_account->balance + $request['montant'],
-                         ]);
-                     }
+                        ]);
+                    }
 
                     $sale->update([
                         'paid_amount' => $new_total_paid,
                         'payment_statut' => $payment_statut,
                     ]);
 
-                } 
+                }
 
             } catch (Exception $e) {
                 return response()->json(['message' => $e->getMessage()], 500);
@@ -391,10 +388,7 @@ class PaymentSalesController extends BaseController
         return response()->json(['success' => true, 'message' => 'Payment Update successfully'], 200);
     }
 
-
-
-
-    //----------- Delete Payment Sales --------------\\
+    // ----------- Delete Payment Sales --------------\\
 
     public function destroy(Request $request, $id)
     {
@@ -406,7 +400,7 @@ class PaymentSalesController extends BaseController
             $payment = PaymentSale::findOrFail($id);
 
             // Check If User Has Permission view All Records
-            if (!$view_records) {
+            if (! $view_records) {
                 // Check If User->id === payment->id
                 $this->authorizeForUser($request->user('api'), 'check_record', $payment);
             }
@@ -417,21 +411,21 @@ class PaymentSalesController extends BaseController
 
             if ($due === 0.0 || $due < 0.0) {
                 $payment_statut = 'paid';
-            } else if ($due !== $sale->GrandTotal) {
+            } elseif ($due !== $sale->GrandTotal) {
                 $payment_statut = 'partial';
-            } else if ($due === $sale->GrandTotal) {
+            } elseif ($due === $sale->GrandTotal) {
                 $payment_statut = 'unpaid';
             }
 
             if ($payment->payment_method_id == 1 || $payment->payment_method_id == '1') {
                 $PaymentWithCreditCard = PaymentWithCreditCard::where('payment_id', $id)->first();
-                if($PaymentWithCreditCard){
+                if ($PaymentWithCreditCard) {
                     Stripe\Stripe::setApiKey(config('app.STRIPE_SECRET'));
                     // Create Refund
                     \Stripe\Refund::create([
                         'charge' => $PaymentWithCreditCard->charge_id,
                     ]);
-    
+
                     $PaymentWithCreditCard->delete();
                 }
             }
@@ -461,7 +455,7 @@ class PaymentSalesController extends BaseController
 
     }
 
-    //----------- Reference order Payment Sales --------------\\
+    // ----------- Reference order Payment Sales --------------\\
 
     public function getNumberOrder()
     {
@@ -469,9 +463,9 @@ class PaymentSalesController extends BaseController
 
         if ($last) {
             $item = $last->Ref;
-            $nwMsg = explode("_", $item);
+            $nwMsg = explode('_', $item);
             $inMsg = $nwMsg[1] + 1;
-            $code = $nwMsg[0] . '_' . $inMsg;
+            $code = $nwMsg[0].'_'.$inMsg;
 
         } else {
             $code = 'INV/SL_1111';
@@ -480,7 +474,7 @@ class PaymentSalesController extends BaseController
         return $code;
     }
 
-    //----------- Payment Sale PDF --------------\\
+    // ----------- Payment Sale PDF --------------\\
 
     public function payment_sale(Request $request, $id)
     {
@@ -496,7 +490,7 @@ class PaymentSalesController extends BaseController
         $payment_data['date'] = $payment->date;
         $payment_data['payment_method'] = $payment['payment_method']->name;
 
-        $helpers = new helpers();
+        $helpers = new helpers;
         $settings = Setting::where('deleted_at', '=', null)->first();
         $symbol = $helpers->Get_Currency_Code();
 
@@ -506,61 +500,56 @@ class PaymentSalesController extends BaseController
             'payment' => $payment_data,
         ])->render();
 
-        $arabic = new Arabic();
+        $arabic = new Arabic;
         $p = $arabic->arIdentify($Html);
 
-        for ($i = count($p)-1; $i >= 0; $i-=2) {
-            $utf8ar = $arabic->utf8Glyphs(substr($Html, $p[$i-1], $p[$i] - $p[$i-1]));
-            $Html = substr_replace($Html, $utf8ar, $p[$i-1], $p[$i] - $p[$i-1]);
+        for ($i = count($p) - 1; $i >= 0; $i -= 2) {
+            $utf8ar = $arabic->utf8Glyphs(substr($Html, $p[$i - 1], $p[$i] - $p[$i - 1]));
+            $Html = substr_replace($Html, $utf8ar, $p[$i - 1], $p[$i] - $p[$i - 1]);
         }
 
         $pdf = PDF::loadHTML($Html);
 
         return $pdf->download('Payment_Sale.pdf');
 
-
     }
 
-
-
-    //------------- Send Payment Sale on Email -----------\\
-
+    // ------------- Send Payment Sale on Email -----------\\
 
     public function SendEmail(Request $request)
     {
         $this->authorizeForUser($request->user('api'), 'view', PaymentSale::class);
-        //PaymentSale
+        // PaymentSale
         $payment = PaymentSale::with('sale.client')->findOrFail($request->id);
 
-        $helpers = new helpers();
+        $helpers = new helpers;
         $currency = $helpers->Get_Currency();
 
-        //settings
+        // settings
         $settings = Setting::where('deleted_at', '=', null)->first();
-    
-        //the custom msg of payment_received
-        $emailMessage  = EmailMessage::where('name', 'payment_received')->first();
 
-        if($emailMessage){
+        // the custom msg of payment_received
+        $emailMessage = EmailMessage::where('name', 'payment_received')->first();
+
+        if ($emailMessage) {
             $message_body = $emailMessage->body;
             $message_subject = $emailMessage->subject;
-        }else{
+        } else {
             $message_body = '';
             $message_subject = '';
         }
-    
-        
+
         $payment_number = $payment->Ref;
 
-        $total_amount = $currency .' '.number_format($payment->montant, 2, '.', ',');
-    
+        $total_amount = $currency.' '.number_format($payment->montant, 2, '.', ',');
+
         $contact_name = $payment['sale']['client']->name;
         $business_name = $settings->CompanyName;
 
-        //receiver email
+        // receiver email
         $receiver_email = $payment['sale']['client']->email;
 
-        //replace the text with tags
+        // replace the text with tags
         $message_body = str_replace('{contact_name}', $contact_name, $message_body);
         $message_body = str_replace('{business_name}', $business_name, $message_body);
         $message_body = str_replace('{payment_number}', $payment_number, $message_body);
@@ -570,81 +559,79 @@ class PaymentSalesController extends BaseController
         $email['body'] = $message_body;
         $email['company_name'] = $business_name;
 
-        $this->Set_config_mail(); 
+        $this->Set_config_mail();
 
         Mail::to($receiver_email)->send(new CustomEmail($email));
+
         return response()->json(['message' => 'Email sent successfully'], 200);
 
         // return $mail;
     }
-   
- 
-   
-   
-    //-------------------Sms Notifications -----------------\\
+
+    // -------------------Sms Notifications -----------------\\
 
     public function Send_SMS(Request $request)
     {
         $this->authorizeForUser($request->user('api'), 'view', PaymentSale::class);
 
-        //PaymentSale
+        // PaymentSale
         $payment = PaymentSale::with('sale.client')->findOrFail($request->id);
 
-        //settings
+        // settings
         $settings = Setting::where('deleted_at', '=', null)->first();
-        
-        $default_sms_gateway = sms_gateway::where('id' , $settings->sms_gateway)
-         ->where('deleted_at', '=', null)->first();
 
-        $helpers = new helpers();
+        $default_sms_gateway = sms_gateway::where('id', $settings->sms_gateway)
+            ->where('deleted_at', '=', null)->first();
+
+        $helpers = new helpers;
         $currency = $helpers->Get_Currency();
 
-        //the custom msg of payment_received
-        $smsMessage  = SMSMessage::where('name', 'payment_received')->first();
+        // the custom msg of payment_received
+        $smsMessage = SMSMessage::where('name', 'payment_received')->first();
 
-        if($smsMessage){
+        if ($smsMessage) {
             $message_text = $smsMessage->text;
-        }else{
+        } else {
             $message_text = '';
         }
-        
+
         $payment_number = $payment->Ref;
 
-        $total_amount = $currency .' '.number_format($payment->montant, 2, '.', ',');
-        
+        $total_amount = $currency.' '.number_format($payment->montant, 2, '.', ',');
+
         $contact_name = $payment['sale']['client']->name;
         $business_name = $settings->CompanyName;
-    
-        //receiver phone
+
+        // receiver phone
         $receiverNumber = $payment['sale']['client']->phone;
 
-        //replace the text with tags
+        // replace the text with tags
         $message_text = str_replace('{contact_name}', $contact_name, $message_text);
         $message_text = str_replace('{business_name}', $business_name, $message_text);
         $message_text = str_replace('{payment_number}', $payment_number, $message_text);
         $message_text = str_replace('{total_amount}', $total_amount, $message_text);
 
-        //twilio
-        if($default_sms_gateway->title == "twilio"){
+        // twilio
+        if ($default_sms_gateway->title == 'twilio') {
             try {
-    
-                $account_sid = env("TWILIO_SID");
-                $auth_token = env("TWILIO_TOKEN");
-                $twilio_number = env("TWILIO_FROM");
-    
+
+                $account_sid = env('TWILIO_SID');
+                $auth_token = env('TWILIO_TOKEN');
+                $twilio_number = env('TWILIO_FROM');
+
                 $client = new Client_Twilio($account_sid, $auth_token);
                 $client->messages->create($receiverNumber, [
-                    'from' => $twilio_number, 
+                    'from' => $twilio_number,
                     'body' => $message_text]);
-        
+
             } catch (Exception $e) {
                 return response()->json(['message' => $e->getMessage()], 500);
             }
         }
-        //termii
-        elseif($default_sms_gateway->title == "termii"){
+        // termii
+        elseif ($default_sms_gateway->title == 'termii') {
 
-            $client = new Client_termi();
+            $client = new Client_termi;
             $url = 'https://api.ng.termii.com/api/sms/send';
 
             $payload = [
@@ -662,47 +649,47 @@ class PaymentSalesController extends BaseController
                 ]);
 
                 $result = json_decode($response->getBody(), true);
+
                 return response()->json($result);
             } catch (\Exception $e) {
-                Log::error("Termii SMS Error: " . $e->getMessage());
+                Log::error('Termii SMS Error: '.$e->getMessage());
+
                 return response()->json(['status' => 'error', 'message' => 'Failed to send SMS'], 500);
             }
-             
- 
+
         }
-        //---- infobip
-        elseif($default_sms_gateway->title == "infobip"){
+        // ---- infobip
+        elseif ($default_sms_gateway->title == 'infobip') {
 
-            $BASE_URL = env("base_url");
-            $API_KEY = env("api_key");
-            $SENDER = env("sender_from");
+            $BASE_URL = env('base_url');
+            $API_KEY = env('api_key');
+            $SENDER = env('sender_from');
 
-            $configuration = (new Configuration())
+            $configuration = (new Configuration)
                 ->setHost($BASE_URL)
                 ->setApiKeyPrefix('Authorization', 'App')
                 ->setApiKey('Authorization', $API_KEY);
-            
-            $client = new Client_guzzle();
-            
+
+            $client = new Client_guzzle;
+
             $sendSmsApi = new SendSMSApi($client, $configuration);
-            $destination = (new SmsDestination())->setTo($receiverNumber);
-            $message = (new SmsTextualMessage())
+            $destination = (new SmsDestination)->setTo($receiverNumber);
+            $message = (new SmsTextualMessage)
                 ->setFrom($SENDER)
                 ->setText($message_text)
                 ->setDestinations([$destination]);
-                
-            $request = (new SmsAdvancedTextualRequest())->setMessages([$message]);
-            
+
+            $request = (new SmsAdvancedTextualRequest)->setMessages([$message]);
+
             try {
                 $smsResponse = $sendSmsApi->sendSmsMessage($request);
-                echo ("Response body: " . $smsResponse);
+                echo 'Response body: '.$smsResponse;
             } catch (Throwable $apiException) {
-                echo("HTTP Code: " . $apiException->getCode() . "\n");
+                echo 'HTTP Code: '.$apiException->getCode()."\n";
             }
-            
+
         }
 
         return response()->json(['success' => true]);
     }
-
 }

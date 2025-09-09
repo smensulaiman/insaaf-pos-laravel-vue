@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CategoryExpenseController extends BaseController
 {
-
-    //-------------- Get All Expense Categories ---------------\\
+    // -------------- Get All Expense Categories ---------------\\
 
     public function index(Request $request)
     {
@@ -29,7 +28,7 @@ class CategoryExpenseController extends BaseController
         // Check If User Has Permission View  All Records
         $ExpenseCategory = ExpenseCategory::where('deleted_at', '=', null)
             ->where(function ($query) use ($view_records) {
-                if (!$view_records) {
+                if (! $view_records) {
                     return $query->where('user_id', '=', Auth::user()->id);
                 }
             })
@@ -41,7 +40,7 @@ class CategoryExpenseController extends BaseController
             });
 
         $totalRows = $ExpenseCategory->count();
-        if($perPage == "-1"){
+        if ($perPage == '-1') {
             $perPage = $totalRows;
         }
         $ExpenseCategory = $ExpenseCategory->offset($offSet)
@@ -56,7 +55,7 @@ class CategoryExpenseController extends BaseController
 
     }
 
-    //-------------- Store New Category ---------------\\
+    // -------------- Store New Category ---------------\\
 
     public function store(Request $request)
     {
@@ -75,14 +74,15 @@ class CategoryExpenseController extends BaseController
         return response()->json(['success' => true], 200);
     }
 
-    //------------ function show -----------\\
+    // ------------ function show -----------\\
 
-    public function show($id){
-    //
-    
+    public function show($id)
+    {
+        //
+
     }
 
-    //-------------- Update Category ---------------\\
+    // -------------- Update Category ---------------\\
 
     public function update(Request $request, $id)
     {
@@ -92,7 +92,7 @@ class CategoryExpenseController extends BaseController
         $ExpenseCategory = ExpenseCategory::findOrFail($id);
 
         // Check If User Has Permission view All Records
-        if (!$view_records) {
+        if (! $view_records) {
             // Check If User->id === ExpenseCategory->id
             $this->authorizeForUser($request->user('api'), 'check_record', $ExpenseCategory);
         }
@@ -110,7 +110,7 @@ class CategoryExpenseController extends BaseController
 
     }
 
-    //-------------- Delete Category ---------------\\
+    // -------------- Delete Category ---------------\\
 
     public function destroy(Request $request, $id)
     {
@@ -120,7 +120,7 @@ class CategoryExpenseController extends BaseController
         $ExpenseCategory = ExpenseCategory::findOrFail($id);
 
         // Check If User Has Permission view All Records
-        if (!$view_records) {
+        if (! $view_records) {
             // Check If User->id === ExpenseCategory->id
             $this->authorizeForUser($request->user('api'), 'check_record', $ExpenseCategory);
         }
@@ -131,7 +131,7 @@ class CategoryExpenseController extends BaseController
         return response()->json(['success' => true], 200);
     }
 
-    //-------------- Delete by selection  ---------------\\
+    // -------------- Delete by selection  ---------------\\
 
     public function delete_by_selection(Request $request)
     {
@@ -144,7 +144,7 @@ class CategoryExpenseController extends BaseController
             $ExpenseCategory = ExpenseCategory::findOrFail($category_id);
 
             // Check If User Has Permission view All Records
-            if (!$view_records) {
+            if (! $view_records) {
                 // Check If User->id === ExpenseCategory->id
                 $this->authorizeForUser($request->user('api'), 'check_record', $ExpenseCategory);
             }
@@ -152,7 +152,7 @@ class CategoryExpenseController extends BaseController
                 'deleted_at' => Carbon::now(),
             ]);
         }
+
         return response()->json(['success' => true], 200);
     }
-
 }

@@ -24,19 +24,19 @@ return new class extends Migration
 
         DB::table('languages')->insert([
             [
-                'name'      => 'English',
-                'locale'    => 'en',
-                'flag'      => 'gb.svg',
+                'name' => 'English',
+                'locale' => 'en',
+                'flag' => 'gb.svg',
                 'is_active' => true,
-                'is_default' => true
+                'is_default' => true,
             ],
             [
                 'name' => 'Japanese',
                 'locale' => 'ja',
-                'flag'      => 'jp.svg',
+                'flag' => 'jp.svg',
                 'is_active' => true,
-                'is_default' => false
-            ]
+                'is_default' => false,
+            ],
         ]);
 
         $defaultLocale = DB::table('settings')->value('default_language') ?? 'en';

@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\TestDbController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\File;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\sms_gateway;
-use DB;
 use Auth;
-use App\Models\Permission;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 
 class UpdateController extends Controller
 {
-
-    public function get_version_info(request $request){
+    public function get_version_info(request $request)
+    {
 
         $this->authorizeForUser($request->user('api'), 'update', Setting::class);
         $version = $this->check();
@@ -27,13 +23,14 @@ class UpdateController extends Controller
         return response()->json($version);
     }
 
-
     /*
     * Return current version (as plain text).
     */
-    public function getCurrentVersion(){
+    public function getCurrentVersion()
+    {
         // todo: env file version
         $version = File::get(base_path().'/version.txt');
+
         return $version;
     }
 
@@ -43,24 +40,26 @@ class UpdateController extends Controller
     public function check()
     {
         $lastVersionInfo = $this->getLastVersion();
-        if( version_compare($lastVersionInfo['version'], $this->getCurrentVersion(), ">") )
+        if (version_compare($lastVersionInfo['version'], $this->getCurrentVersion(), '>')) {
             return $lastVersionInfo['version'];
+        }
 
         return '';
     }
 
-    private function getLastVersion(){
+    private function getLastVersion()
+    {
         $content = file_get_contents('https://update-Insaaf.ui-lib.com/Insaaf_version.json');
         $content = json_decode($content, true);
+
         return $content;
     }
-
 
     public function viewStep1(Request $request)
     {
         $role = Auth::user()->roles()->first();
         $permission = Role::findOrFail($role->id)->inRole('setting_system');
-        if($permission){
+        if ($permission) {
             return view('update.viewStep1');
         }
     }
@@ -70,8 +69,8 @@ class UpdateController extends Controller
         $role = Auth::user()->roles()->first();
         $permission = Role::findOrFail($role->id)->inRole('setting_system');
 
-        if($permission){
-            ini_set('max_execution_time', 600); //600 seconds = 10 minutes
+        if ($permission) {
+            ini_set('max_execution_time', 600); // 600 seconds = 10 minutes
 
             try {
 
@@ -83,7 +82,7 @@ class UpdateController extends Controller
                 $role = Role::findOrFail(1);
                 $role->permissions()->detach();
 
-                $permissions = array(
+                $permissions = [
                     0 => 'view_employee',
                     1 => 'add_employee',
                     2 => 'edit_employee',
@@ -142,7 +141,7 @@ class UpdateController extends Controller
                     55 => 'report_sales_by_category',
                     56 => 'report_sales_by_brand',
                     57 => 'opening_stock_import',
-                );
+                ];
 
                 foreach ($permissions as $permission_slug) {
                     $perm = Permission::firstOrCreate(['name' => $permission_slug]);
@@ -151,7 +150,7 @@ class UpdateController extends Controller
                 $permissions_data = Permission::pluck('id')->toArray();
                 $role->permissions()->attach($permissions_data);
 
-                //create new sms gateway infobip
+                // create new sms gateway infobip
                 sms_gateway::firstOrCreate(['title' => 'infobip']);
                 sms_gateway::firstOrCreate(['title' => 'termii']); // ✅ Create "termii" gateway
 
@@ -185,5 +184,4 @@ class UpdateController extends Controller
             return view('update.finishedUpdate');
         }
     }
-
 }

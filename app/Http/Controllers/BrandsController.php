@@ -5,14 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\utils\helpers;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class BrandsController extends Controller
 {
-
-    //------------ GET ALL Brands -----------\\
+    // ------------ GET ALL Brands -----------\\
 
     public function index(Request $request)
     {
@@ -24,7 +22,7 @@ class BrandsController extends Controller
         $offSet = ($pageStart * $perPage) - $perPage;
         $order = $request->SortField;
         $dir = $request->SortType;
-        $helpers = new helpers();
+        $helpers = new helpers;
 
         $brands = Brand::where('deleted_at', '=', null)
 
@@ -36,7 +34,7 @@ class BrandsController extends Controller
                 });
             });
         $totalRows = $brands->count();
-        if($perPage == "-1"){
+        if ($perPage == '-1') {
             $perPage = $totalRows;
         }
         $brands = $brands->offset($offSet)
@@ -51,7 +49,7 @@ class BrandsController extends Controller
 
     }
 
-    //---------------- STORE NEW Brand -------------\\
+    // ---------------- STORE NEW Brand -------------\\
 
     public function store(Request $request)
     {
@@ -66,11 +64,11 @@ class BrandsController extends Controller
             if ($request->hasFile('image')) {
 
                 $image = $request->file('image');
-                $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
+                $filename = rand(11111111, 99999999).$image->getClientOriginalName();
 
                 $image_resize = Image::make($image->getRealPath());
                 $image_resize->resize(200, 200);
-                $image_resize->save(public_path('/images/brands/' . $filename));
+                $image_resize->save(public_path('/images/brands/'.$filename));
 
             } else {
                 $filename = 'no-image.png';
@@ -89,68 +87,67 @@ class BrandsController extends Controller
 
     }
 
-     //------------ function show -----------\\
+    // ------------ function show -----------\\
 
-     public function show($id){
+    public function show($id)
+    {
         //
-    
+
     }
 
-     //---------------- UPDATE Brand -------------\\
+    // ---------------- UPDATE Brand -------------\\
 
-     public function update(Request $request, $id)
-     {
- 
-         $this->authorizeForUser($request->user('api'), 'update', Brand::class);
- 
-         request()->validate([
-             'name' => 'required',
-         ]);
-         \DB::transaction(function () use ($request, $id) {
-             $Brand = Brand::findOrFail($id);
-             $currentImage = $Brand->image;
- 
-             if ($currentImage && $request->image != $currentImage) {
-                 $image = $request->file('image');
-                 $path = public_path() . '/images/brands';
-                 $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
- 
-                 $image_resize = Image::make($image->getRealPath());
-                 $image_resize->resize(200, 200);
-                 $image_resize->save(public_path('/images/brands/' . $filename));
- 
-                 $BrandImage = $path . '/' . $currentImage;
-                 if (file_exists($BrandImage)) {
-                     if ($currentImage != 'no-image.png') {
-                         @unlink($BrandImage);
-                     }
-                 }
-             } else if (!$currentImage && $request->image !='null'){
-                 $image = $request->file('image');
-                 $path = public_path() . '/images/brands';
-                 $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
- 
-                 $image_resize = Image::make($image->getRealPath());
-                 $image_resize->resize(200, 200);
-                 $image_resize->save(public_path('/images/brands/' . $filename));
-             }
- 
-             else {
-                 $filename = $currentImage?$currentImage:'no-image.png';
-             }
- 
-             Brand::whereId($id)->update([
-                 'name' => $request['name'],
-                 'description' => $request['description'],
-                 'image' => $filename,
-             ]);
- 
-         }, 10);
- 
-         return response()->json(['success' => true]);
-     }
+    public function update(Request $request, $id)
+    {
 
-    //------------ Delete Brand -----------\\
+        $this->authorizeForUser($request->user('api'), 'update', Brand::class);
+
+        request()->validate([
+            'name' => 'required',
+        ]);
+        \DB::transaction(function () use ($request, $id) {
+            $Brand = Brand::findOrFail($id);
+            $currentImage = $Brand->image;
+
+            if ($currentImage && $request->image != $currentImage) {
+                $image = $request->file('image');
+                $path = public_path().'/images/brands';
+                $filename = rand(11111111, 99999999).$image->getClientOriginalName();
+
+                $image_resize = Image::make($image->getRealPath());
+                $image_resize->resize(200, 200);
+                $image_resize->save(public_path('/images/brands/'.$filename));
+
+                $BrandImage = $path.'/'.$currentImage;
+                if (file_exists($BrandImage)) {
+                    if ($currentImage != 'no-image.png') {
+                        @unlink($BrandImage);
+                    }
+                }
+            } elseif (! $currentImage && $request->image != 'null') {
+                $image = $request->file('image');
+                $path = public_path().'/images/brands';
+                $filename = rand(11111111, 99999999).$image->getClientOriginalName();
+
+                $image_resize = Image::make($image->getRealPath());
+                $image_resize->resize(200, 200);
+                $image_resize->save(public_path('/images/brands/'.$filename));
+            } else {
+                $filename = $currentImage ? $currentImage : 'no-image.png';
+            }
+
+            Brand::whereId($id)->update([
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'image' => $filename,
+            ]);
+
+        }, 10);
+
+        return response()->json(['success' => true]);
+    }
+
+    // ------------ Delete Brand -----------\\
 
     public function destroy(Request $request, $id)
     {
@@ -159,10 +156,11 @@ class BrandsController extends Controller
         Brand::whereId($id)->update([
             'deleted_at' => Carbon::now(),
         ]);
+
         return response()->json(['success' => true]);
     }
 
-    //-------------- Delete by selection  ---------------\\
+    // -------------- Delete by selection  ---------------\\
 
     public function delete_by_selection(Request $request)
     {
@@ -175,8 +173,8 @@ class BrandsController extends Controller
                 'deleted_at' => Carbon::now(),
             ]);
         }
+
         return response()->json(['success' => true]);
 
     }
-
 }

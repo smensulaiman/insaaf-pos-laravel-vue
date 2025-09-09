@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 
 class CategorieController extends BaseController
 {
-
-    //-------------- Get All Categories ---------------\\
+    // -------------- Get All Categories ---------------\\
 
     public function index(Request $request)
     {
@@ -22,7 +21,7 @@ class CategorieController extends BaseController
         $offSet = ($pageStart * $perPage) - $perPage;
         $order = $request->SortField;
         $dir = $request->SortType;
-        $helpers = new helpers();
+        $helpers = new helpers;
 
         $categories = Category::where('deleted_at', '=', null)
 
@@ -34,7 +33,7 @@ class CategorieController extends BaseController
                 });
             });
         $totalRows = $categories->count();
-        if($perPage == "-1"){
+        if ($perPage == '-1') {
             $perPage = $totalRows;
         }
         $categories = $categories->offset($offSet)
@@ -48,7 +47,7 @@ class CategorieController extends BaseController
         ]);
     }
 
-    //-------------- Store New Category ---------------\\
+    // -------------- Store New Category ---------------\\
 
     public function store(Request $request)
     {
@@ -63,17 +62,19 @@ class CategorieController extends BaseController
             'code' => $request['code'],
             'name' => $request['name'],
         ]);
+
         return response()->json(['success' => true]);
     }
 
-     //------------ function show -----------\\
+    // ------------ function show -----------\\
 
-    public function show($id){
+    public function show($id)
+    {
         //
-    
+
     }
 
-    //-------------- Update Category ---------------\\
+    // -------------- Update Category ---------------\\
 
     public function update(Request $request, $id)
     {
@@ -88,11 +89,12 @@ class CategorieController extends BaseController
             'code' => $request['code'],
             'name' => $request['name'],
         ]);
+
         return response()->json(['success' => true]);
 
     }
 
-    //-------------- Remove Category ---------------\\
+    // -------------- Remove Category ---------------\\
 
     public function destroy(Request $request, $id)
     {
@@ -101,10 +103,11 @@ class CategorieController extends BaseController
         Category::whereId($id)->update([
             'deleted_at' => Carbon::now(),
         ]);
+
         return response()->json(['success' => true]);
     }
 
-    //-------------- Delete by selection  ---------------\\
+    // -------------- Delete by selection  ---------------\\
 
     public function delete_by_selection(Request $request)
     {
@@ -119,5 +122,4 @@ class CategorieController extends BaseController
 
         return response()->json(['success' => true]);
     }
-
 }

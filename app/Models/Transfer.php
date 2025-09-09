@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Transfer extends Model
 {
     protected $table = 'transfers';
+
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'id', 'date','user_id', 'from_warehouse_id', 'to_warehouse_id','time',
+        'id', 'date', 'user_id', 'from_warehouse_id', 'to_warehouse_id', 'time',
         'items', 'statut', 'notes', 'GrandTotal', 'discount', 'shipping', 'TaxNet', 'tax_rate',
         'created_at', 'updated_at', 'deleted_at',
     ];
@@ -47,5 +48,4 @@ class Transfer extends Model
     {
         return $this->belongsTo('App\Models\Warehouse', 'to_warehouse_id');
     }
-
 }

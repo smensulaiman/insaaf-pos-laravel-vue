@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
 class EcommerceClient extends Model implements Authenticatable
 {
@@ -13,7 +13,7 @@ class EcommerceClient extends Model implements Authenticatable
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'client_id', 'username', 'email', 'status','password'
+        'client_id', 'username', 'email', 'status', 'password',
 
     ];
 
@@ -26,7 +26,6 @@ class EcommerceClient extends Model implements Authenticatable
         'email_verified_at' => 'datetime',
         'status' => 'integer',
     ];
-
 
     public function client()
     {

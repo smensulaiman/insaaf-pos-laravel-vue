@@ -2,26 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Currency;
-use App\Models\Setting;
-use App\Models\PosSetting;
 use App\Models\Client;
-use App\Models\User;
+use App\Models\Currency;
 use App\Models\Language;
-use App\Models\Warehouse;
-use App\Models\UserWarehouse;
+use App\Models\PosSetting;
+use App\Models\Setting;
 use App\Models\sms_gateway;
-use File;
-use Illuminate\Support\Facades\Artisan;
+use App\Models\User;
+use App\Models\UserWarehouse;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Intervention\Image\ImageManagerStatic as Image;
-use Illuminate\Support\Facades\Config;
 
 class SettingsController extends Controller
 {
-
-
-    //-------------- Update  Settings ---------------\\
+    // -------------- Update  Settings ---------------\\
 
     public function update(Request $request, $id)
     {
@@ -32,14 +28,14 @@ class SettingsController extends Controller
         if ($request->logo != $currentAvatar) {
 
             $image = $request->file('logo');
-            $path = public_path() . '/images';
-            $filename = rand(11111111, 99999999) . $image->getClientOriginalName();
+            $path = public_path().'/images';
+            $filename = rand(11111111, 99999999).$image->getClientOriginalName();
 
             $image_resize = Image::make($image->getRealPath());
             $image_resize->resize(80, 80);
-            $image_resize->save(public_path('/images/' . $filename));
+            $image_resize->save(public_path('/images/'.$filename));
 
-            $userPhoto = $path . '/' . $currentAvatar;
+            $userPhoto = $path.'/'.$currentAvatar;
             if (file_exists($userPhoto)) {
                 if ($setting->logo != 'logo-default.png') {
                     @unlink($userPhoto);
@@ -78,21 +74,21 @@ class SettingsController extends Controller
             $default_language = 'en';
         }
 
-        if($request['is_invoice_footer'] == '1' || $request['is_invoice_footer'] == 'true'){
+        if ($request['is_invoice_footer'] == '1' || $request['is_invoice_footer'] == 'true') {
             $is_invoice_footer = 1;
-        }else{
+        } else {
             $is_invoice_footer = 0;
         }
 
-        if($request['quotation_with_stock'] == '1' || $request['quotation_with_stock'] == 'true'){
+        if ($request['quotation_with_stock'] == '1' || $request['quotation_with_stock'] == 'true') {
             $quotation_with_stock = 1;
-        }else{
+        } else {
             $quotation_with_stock = 0;
         }
 
-        if($request['show_language'] == '1' || $request['show_language'] == 'true'){
+        if ($request['show_language'] == '1' || $request['show_language'] == 'true') {
             $show_language = 1;
-        }else{
+        } else {
             $show_language = 0;
         }
 
@@ -101,7 +97,7 @@ class SettingsController extends Controller
             'client_id' => $client,
             'warehouse_id' => $warehouse,
             'email' => $request['email'],
-            'default_language' =>  $default_language,
+            'default_language' => $default_language,
             'CompanyName' => $request['CompanyName'],
             'CompanyPhone' => $request['CompanyPhone'],
             'CompanyAdress' => $request['CompanyAdress'],
@@ -115,11 +111,11 @@ class SettingsController extends Controller
             'logo' => $filename,
         ]);
 
-         // Set selected language as default
+        // Set selected language as default
         $language = Language::where('locale', $default_language)->first();
 
         // Skip if already default
-        if (!$language->is_default) {
+        if (! $language->is_default) {
             // Set this one as default
             $language->update(['is_default' => true]);
 
@@ -130,7 +126,7 @@ class SettingsController extends Controller
         }
 
         $this->setEnvironmentValue([
-            'APP_TIMEZONE' => $request['timezone'] !== null?'"' . $request['timezone'] . '"':'"UTC"',
+            'APP_TIMEZONE' => $request['timezone'] !== null ? '"'.$request['timezone'].'"' : '"UTC"',
         ]);
 
         Artisan::call('config:cache');
@@ -139,23 +135,21 @@ class SettingsController extends Controller
         return response()->json(['success' => true]);
     }
 
+    // -------------- Get Pos Settings ---------------\\
 
-     //-------------- Get Pos Settings ---------------\\
+    public function get_pos_Settings(Request $request)
+    {
+        $this->authorizeForUser($request->user('api'), 'pos_settings', Setting::class);
 
-     public function get_pos_Settings(Request $request)
-     {
-         $this->authorizeForUser($request->user('api'), 'pos_settings', Setting::class);
- 
-         $PosSetting = PosSetting::where('deleted_at', '=', null)->first();
+        $PosSetting = PosSetting::where('deleted_at', '=', null)->first();
 
-         return response()->json([
-             'pos_settings' => $PosSetting
-            ], 200);
-    
+        return response()->json([
+            'pos_settings' => $PosSetting,
+        ], 200);
+
     }
 
-
-    //-------------- Update Pos settings ---------------\\
+    // -------------- Update Pos settings ---------------\\
 
     public function update_pos_settings(Request $request, $id)
     {
@@ -165,38 +159,37 @@ class SettingsController extends Controller
             'note_customer' => 'required',
         ]);
 
-        if($request['is_printable'] == '1' || $request['is_printable'] == 'true'){
+        if ($request['is_printable'] == '1' || $request['is_printable'] == 'true') {
             $is_printable = 1;
-        }else{
+        } else {
             $is_printable = 0;
         }
 
-        if($request['show_Warehouse'] == '1' || $request['show_Warehouse'] == 'true'){
+        if ($request['show_Warehouse'] == '1' || $request['show_Warehouse'] == 'true') {
             $show_Warehouse = 1;
-        }else{
+        } else {
             $show_Warehouse = 0;
         }
 
         PosSetting::whereId($id)->update([
-            'note_customer'  => $request['note_customer'],
-            'show_note'      => $request['show_note'],
-            'show_barcode'   => $request['show_barcode'],
-            'show_discount'  => $request['show_discount'],
-            'show_customer'  => $request['show_customer'],
-            'show_email'     => $request['show_email'],
-            'show_phone'     => $request['show_phone'],
-            'show_address'   => $request['show_address'],
-            'products_per_page'   => $request['products_per_page'],
-            'is_printable'   => $is_printable,
+            'note_customer' => $request['note_customer'],
+            'show_note' => $request['show_note'],
+            'show_barcode' => $request['show_barcode'],
+            'show_discount' => $request['show_discount'],
+            'show_customer' => $request['show_customer'],
+            'show_email' => $request['show_email'],
+            'show_phone' => $request['show_phone'],
+            'show_address' => $request['show_address'],
+            'products_per_page' => $request['products_per_page'],
+            'is_printable' => $is_printable,
             'show_Warehouse' => $show_Warehouse,
         ]);
 
         return response()->json(['success' => true]);
 
     }
-    
 
-    //-------------- Get All Settings ---------------\\
+    // -------------- Get All Settings ---------------\\
 
     public function getSettings(Request $request)
     {
@@ -257,49 +250,47 @@ class SettingsController extends Controller
             $item['invoice_footer'] = $settings->invoice_footer;
             $item['quotation_with_stock'] = $settings->quotation_with_stock;
             $item['show_language'] = $settings->show_language;
-            $item['timezone'] = env('APP_TIMEZONE') == null?'UTC':env('APP_TIMEZONE');
+            $item['timezone'] = env('APP_TIMEZONE') == null ? 'UTC' : env('APP_TIMEZONE');
 
-            $zones_array = array();
+            $zones_array = [];
             $timestamp = time();
-            foreach(timezone_identifiers_list() as $key => $zone){
+            foreach (timezone_identifiers_list() as $key => $zone) {
                 date_default_timezone_set($zone);
                 $zones_array[$key]['zone'] = $zone;
-                $zones_array[$key]['diff_from_GMT'] = 'UTC/GMT ' . date('P', $timestamp);
-                $zones_array[$key]['label'] = $zones_array[$key]['diff_from_GMT'] . ' - ' . $zones_array[$key]['zone'];
+                $zones_array[$key]['diff_from_GMT'] = 'UTC/GMT '.date('P', $timestamp);
+                $zones_array[$key]['label'] = $zones_array[$key]['diff_from_GMT'].' - '.$zones_array[$key]['zone'];
             }
 
             $Currencies = Currency::where('deleted_at', null)->get(['id', 'name']);
             $clients = client::where('deleted_at', '=', null)->get(['id', 'name']);
             $sms_gateway = sms_gateway::where('deleted_at', '=', null)->get(['id', 'title']);
 
-            //get warehouses assigned to user
+            // get warehouses assigned to user
             $user_auth = auth()->user();
-            if($user_auth->is_all_warehouses){
+            if ($user_auth->is_all_warehouses) {
                 $warehouses = Warehouse::where('deleted_at', '=', null)->get(['id', 'name']);
-            }else{
+            } else {
                 $warehouses_id = UserWarehouse::where('user_id', $user_auth->id)->pluck('warehouse_id')->toArray();
                 $warehouses = Warehouse::where('deleted_at', '=', null)->whereIn('id', $warehouses_id)->get(['id', 'name']);
             }
 
             $languages = Language::where('is_active', true)->get(['name', 'locale']);
 
-
             return response()->json([
-                'settings'    => $item,
-                'currencies'  => $Currencies,
-                'clients'     => $clients, 
-                'warehouses'  => $warehouses,
+                'settings' => $item,
+                'currencies' => $Currencies,
+                'clients' => $clients,
+                'warehouses' => $warehouses,
                 'sms_gateway' => $sms_gateway,
                 'zones_array' => $zones_array,
-                'languages'   => $languages,
+                'languages' => $languages,
             ], 200);
         } else {
             return response()->json(['statut' => 'error'], 500);
         }
     }
 
-
-    //-------------- Clear_Cache ---------------\\
+    // -------------- Clear_Cache ---------------\\
 
     public function Clear_Cache(Request $request)
     {
@@ -308,8 +299,7 @@ class SettingsController extends Controller
         Artisan::call('route:clear');
     }
 
-   
-    //-------------- Set Environment Value ---------------\\
+    // -------------- Set Environment Value ---------------\\
 
     public function setEnvironmentValue(array $values)
     {
@@ -318,32 +308,31 @@ class SettingsController extends Controller
         $str .= "\r\n";
         if (count($values) > 0) {
             foreach ($values as $envKey => $envValue) {
-    
+
                 $keyPosition = strpos($str, "$envKey=");
                 $endOfLinePosition = strpos($str, "\n", $keyPosition);
                 $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-    
+
                 if (is_bool($keyPosition) && $keyPosition === false) {
                     // variable doesnot exist
                     $str .= "$envKey=$envValue";
                     $str .= "\r\n";
                 } else {
-                    // variable exist                    
+                    // variable exist
                     $str = str_replace($oldLine, "$envKey=$envValue", $str);
-                }            
+                }
             }
         }
-    
+
         $str = substr($str, 0, -1);
-        if (!file_put_contents($envFile, $str)) {
+        if (! file_put_contents($envFile, $str)) {
             return false;
         }
-    
-        app()->loadEnvironmentFrom($envFile);    
-    
+
+        app()->loadEnvironmentFrom($envFile);
+
         return true;
     }
-
 
     public function get_appearance_settings(Request $request)
     {
@@ -351,25 +340,24 @@ class SettingsController extends Controller
 
         $settings = Setting::where('deleted_at', '=', null)->first();
         if ($settings) {
-           
+
             $item['id'] = $settings->id;
-          
+
             $item['favicon'] = $settings->favicon;
             $item['app_name'] = $settings->app_name;
             $item['page_title_suffix'] = $settings->page_title_suffix;
             $item['logo'] = $settings->logo;
             $item['footer'] = $settings->footer;
             $item['developed_by'] = $settings->developed_by;
-          
+
             return response()->json([
-                'settings' => $item ,
+                'settings' => $item,
 
             ], 200);
         } else {
             return response()->json(['statut' => 'error'], 500);
         }
     }
-
 
     public function update_appearance_settings(Request $request, $id)
     {
@@ -385,14 +373,14 @@ class SettingsController extends Controller
         // Handle Logo Upload
         if ($request->hasFile('logo') && $request->file('logo') != $currentLogo) {
             $logo = $request->file('logo');
-            $logoFilename = rand(11111111, 99999999) . $logo->getClientOriginalName();
-            $logoPath = public_path('/images/' . $logoFilename);
+            $logoFilename = rand(11111111, 99999999).$logo->getClientOriginalName();
+            $logoPath = public_path('/images/'.$logoFilename);
 
             $imageResize = Image::make($logo->getRealPath())->resize(80, 80);
             $imageResize->save($logoPath);
 
             if ($currentLogo && $currentLogo != 'logo-default.png') {
-                $oldLogoPath = public_path('/images/' . $currentLogo);
+                $oldLogoPath = public_path('/images/'.$currentLogo);
                 if (file_exists($oldLogoPath)) {
                     @unlink($oldLogoPath);
                 }
@@ -400,17 +388,17 @@ class SettingsController extends Controller
         }
 
         // Handle Favicon Upload
-       if ($request->hasFile('favicon') && $request->file('favicon')->isValid()) {
+        if ($request->hasFile('favicon') && $request->file('favicon')->isValid()) {
             $favicon = $request->file('favicon');
             $extension = strtolower($favicon->getClientOriginalExtension());
 
             if (in_array($extension, ['ico', 'png'])) {
-                $faviconFilename = uniqid() . '.' . $extension;
+                $faviconFilename = uniqid().'.'.$extension;
                 $favicon->move(public_path('images'), $faviconFilename);
 
                 // Delete old favicon if it exists and is not default
                 if ($currentFavicon && $currentFavicon !== 'favicon.ico') {
-                    $oldFaviconPath = public_path('images/' . $currentFavicon);
+                    $oldFaviconPath = public_path('images/'.$currentFavicon);
                     if (file_exists($oldFaviconPath)) {
                         @unlink($oldFaviconPath);
                     }
@@ -418,19 +406,16 @@ class SettingsController extends Controller
             }
         }
 
-
         // Update settings
         $setting->update([
-            'footer'             => $request->input('footer'),
-            'developed_by'       => $request->input('developed_by'),
-            'app_name'           => $request->input('app_name'),
-            'page_title_suffix'  => $request->input('page_title_suffix'),
-            'logo'               => $logoFilename,
-            'favicon'            => $faviconFilename,
+            'footer' => $request->input('footer'),
+            'developed_by' => $request->input('developed_by'),
+            'app_name' => $request->input('app_name'),
+            'page_title_suffix' => $request->input('page_title_suffix'),
+            'logo' => $logoFilename,
+            'favicon' => $faviconFilename,
         ]);
 
         return response()->json(['success' => true]);
     }
-
-
 }

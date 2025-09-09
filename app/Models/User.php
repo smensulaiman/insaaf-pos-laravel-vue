@@ -9,6 +9,7 @@ use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
+
     protected $dates = ['deleted_at'];
 
     /**
@@ -17,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'firstname', 'lastname', 'username', 'email', 'password', 'phone', 'statut', 'avatar', 'role_id','is_all_warehouses'
+        'firstname', 'lastname', 'username', 'email', 'password', 'phone', 'statut', 'avatar', 'role_id', 'is_all_warehouses',
     ];
 
     /**
@@ -61,12 +62,12 @@ class User extends Authenticatable
         if (is_string($role)) {
             return $this->roles->contains('name', $role);
         }
-        return !!$role->intersect($this->roles)->count();
+
+        return (bool) $role->intersect($this->roles)->count();
     }
 
     public function assignedWarehouses()
     {
         return $this->belongsToMany('App\Models\Warehouse');
     }
-
 }

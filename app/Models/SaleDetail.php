@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SaleDetail extends Model
 {
-
     protected $fillable = [
-        'id', 'date', 'sale_id','sale_unit_id', 'quantity', 'product_id', 'total', 'product_variant_id',
+        'id', 'date', 'sale_id', 'sale_unit_id', 'quantity', 'product_id', 'total', 'product_variant_id',
         'price', 'TaxNet', 'discount', 'discount_method', 'tax_method',
     ];
 
@@ -34,5 +33,4 @@ class SaleDetail extends Model
     {
         return $this->belongsTo('App\Models\Product');
     }
-
 }

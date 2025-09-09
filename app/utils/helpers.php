@@ -1,4 +1,5 @@
 <?php
+
 namespace App\utils;
 
 use App\Models\Currency;
@@ -8,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class helpers
 {
-
     //  Helper Multiple Filter
     public function filter($model, $columns, $param, $request)
     {
@@ -41,9 +41,10 @@ class helpers
         $Role = Auth::user()->roles()->first();
         $ShowRecord = Role::findOrFail($Role->id)->inRole('record_view');
 
-        if (!$ShowRecord) {
+        if (! $ShowRecord) {
             return $model->where('user_id', '=', Auth::user()->id);
         }
+
         return $model;
     }
 
@@ -63,6 +64,7 @@ class helpers
         } else {
             $symbol = '';
         }
+
         return $symbol;
     }
 
@@ -82,7 +84,7 @@ class helpers
         } else {
             $code = 'usd';
         }
+
         return $code;
     }
-
 }

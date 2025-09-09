@@ -12,17 +12,17 @@ class ServerSeeder extends Seeder
      */
     public function run()
     {
-       // Insert some stuff
+        // Insert some stuff
         DB::table('servers')->insert(
-            array(
+            [
                 'id' => 1,
                 'host' => 'mailtrap.io',
                 'port' => '2525',
                 'username' => 'test',
                 'password' => 'test',
                 'encryption' => 'tls',
-            )
-            
+            ]
+
         );
     }
 }

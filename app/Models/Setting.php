@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-
     protected $fillable = [
-        'currency_id', 'email', 'CompanyName', 'CompanyPhone', 'CompanyAdress','quotation_with_stock',
-         'logo','footer','developed_by','client_id','warehouse_id','default_language','show_language',
-         'is_invoice_footer','invoice_footer','app_name','favicon','page_title_suffix'
+        'currency_id', 'email', 'CompanyName', 'CompanyPhone', 'CompanyAdress', 'quotation_with_stock',
+        'logo', 'footer', 'developed_by', 'client_id', 'warehouse_id', 'default_language', 'show_language',
+        'is_invoice_footer', 'invoice_footer', 'app_name', 'favicon', 'page_title_suffix',
     ];
 
     protected $casts = [
@@ -31,5 +30,4 @@ class Setting extends Model
     {
         return $this->belongsTo('App\Models\Client');
     }
-
 }

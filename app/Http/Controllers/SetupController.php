@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\Storage;
 
 class SetupController extends Controller
 {
-
-    public function changeEnv($data = array())
+    public function changeEnv($data = [])
     {
         if (count($data) > 0) {
 
             // Read .env-file
-            $env = file_get_contents(base_path() . '/.env');
+            $env = file_get_contents(base_path().'/.env');
 
             // Split string on every " " and write into array
             $env = preg_split('/(\r\n|\n|\r)/', $env);
@@ -27,14 +26,14 @@ class SetupController extends Controller
 
                     // Turn the value into an array and stop after the first split
                     // So it's not possible to split e.g. the App-Key by accident
-                    $entry = explode("=", $env_value, 2);
+                    $entry = explode('=', $env_value, 2);
 
                     // Check, if new key fits the actual .env-key
                     if ($entry[0] == $key) {
                         // If yes, overwrite it with the new one
                         if ($value !== null) {
 
-                            $env[$env_key] = $key . "=" . $value;
+                            $env[$env_key] = $key.'='.$value;
                         }
                     } else {
                         // If not, keep the old one
@@ -47,7 +46,7 @@ class SetupController extends Controller
             $env = implode("\n", $env);
 
             // And overwrite the .env with the new data
-            file_put_contents(base_path() . '/.env', $env);
+            file_put_contents(base_path().'/.env', $env);
 
             return true;
         } else {
@@ -55,16 +54,15 @@ class SetupController extends Controller
         }
     }
 
-
     public function viewStep1()
     {
 
-        $data = array(
-            "APP_NAME" => session('env.APP_NAME') ? str_replace('"', '', session('env.APP_NAME')) : str_replace('"', '', config('app.name')),
-            "APP_ENV" => session('env.APP_ENV') ? session('env.APP_ENV') : config('app.env'),
-            "APP_DEBUG" => session('env.APP_DEBUG') ? session('env.APP_DEBUG') : config('app.debug'),
-            "APP_KEY" => session('env.APP_KEY') ? session('env.APP_KEY') : config('app.key'),
-        );
+        $data = [
+            'APP_NAME' => session('env.APP_NAME') ? str_replace('"', '', session('env.APP_NAME')) : str_replace('"', '', config('app.name')),
+            'APP_ENV' => session('env.APP_ENV') ? session('env.APP_ENV') : config('app.env'),
+            'APP_DEBUG' => session('env.APP_DEBUG') ? session('env.APP_DEBUG') : config('app.debug'),
+            'APP_KEY' => session('env.APP_KEY') ? session('env.APP_KEY') : config('app.key'),
+        ];
 
         return view('setup.step1', compact('data'));
     }
@@ -76,21 +74,21 @@ class SetupController extends Controller
 
     public function viewStep2()
     {
-        if (config("database.default") == 'mysql') {
+        if (config('database.default') == 'mysql') {
             $db = config('database.connections.mysql');
 
         }
 
-        $data = array(
-            "DB_CONNECTION" => env('DB_CONNECTION', config("database.default")),
-            "DB_HOST" => env('DB_HOST', isset($db['host']) ? $db['host'] : ''),
-            "DB_PORT" => env('DB_PORT', isset($db['port']) ? $db['port'] : ''),
-            "DB_DATABASE" => env('DB_DATABASE', isset($db['database']) ? $db['database'] : ''),
-            "DB_USERNAME" => env('DB_USERNAME', isset($db['username']) ? $db['username'] : ''),
-            "DB_PASSWORD" => str_replace('"', '', env('DB_PASSWORD', isset($db['password']) ? $db['password'] : '')),
-        );
+        $data = [
+            'DB_CONNECTION' => env('DB_CONNECTION', config('database.default')),
+            'DB_HOST' => env('DB_HOST', isset($db['host']) ? $db['host'] : ''),
+            'DB_PORT' => env('DB_PORT', isset($db['port']) ? $db['port'] : ''),
+            'DB_DATABASE' => env('DB_DATABASE', isset($db['database']) ? $db['database'] : ''),
+            'DB_USERNAME' => env('DB_USERNAME', isset($db['username']) ? $db['username'] : ''),
+            'DB_PASSWORD' => str_replace('"', '', env('DB_PASSWORD', isset($db['password']) ? $db['password'] : '')),
+        ];
 
-        return view('setup.step2', ["data" => $data]);
+        return view('setup.step2', ['data' => $data]);
     }
 
     public function viewStep3()
@@ -98,7 +96,7 @@ class SetupController extends Controller
         $dbtype = null;
 
         if (session('env.DB_CONNECTION') == null) {
-            $dbtype = config("database.default");
+            $dbtype = config('database.default');
         } else {
             $dbtype = session('env.DB_CONNECTION');
         }
@@ -110,20 +108,20 @@ class SetupController extends Controller
 
         $dbDatabase = session('env.DB_DATABASE');
 
-        $data = array(
+        $data = [
 
-            "APP_NAME" => str_replace('"', '', session('env.APP_NAME')) == str_replace('"', '', config('app.name')) ? 'old' : str_replace('"', '', session('env.APP_NAME')),
-            "APP_ENV" => session('env.APP_ENV') == config('app.env') ? 'old' : session('APP_ENV'),
-            "APP_DEBUG" => session('env.APP_DEBUG') == config('app.debug') ? 'old' : session('env.APP_DEBUG'),
-            "APP_KEY" => session('env.APP_KEY') == config('app.key') ? 'old' : session('env.APP_KEY'),
-            "DB_CONNECTION" => session('env.DB_CONNECTION') == config("database.default") ? 'old' : session('env.DB_CONNECTION'),
-            "DB_HOST" => session('env.DB_HOST') == (isset($db['host']) ? $db['host'] : '') ? 'old' : session('env.DB_HOST'),
-            "DB_PORT" => session('env.DB_PORT') == (isset($db['port']) ? $db['port'] : '') ? 'old' : session('env.DB_PORT'),
-            "DB_DATABASE" => $dbDatabase == (isset($db['database']) ? $db['database'] : '') ? 'old' : session('env.DB_DATABASE'),
-            "DB_USERNAME" => session('env.DB_USERNAME') == (isset($db['username']) ? $db['username'] : '') ? 'old' : session('env.DB_USERNAME'),
-            "DB_PASSWORD" => str_replace('"', '', session('env.DB_PASSWORD')) == (isset($db['password']) ? str_replace('"', '', $db['password']) : '') ? 'old' : str_replace('"', '', session('env.DB_PASSWORD')),
+            'APP_NAME' => str_replace('"', '', session('env.APP_NAME')) == str_replace('"', '', config('app.name')) ? 'old' : str_replace('"', '', session('env.APP_NAME')),
+            'APP_ENV' => session('env.APP_ENV') == config('app.env') ? 'old' : session('APP_ENV'),
+            'APP_DEBUG' => session('env.APP_DEBUG') == config('app.debug') ? 'old' : session('env.APP_DEBUG'),
+            'APP_KEY' => session('env.APP_KEY') == config('app.key') ? 'old' : session('env.APP_KEY'),
+            'DB_CONNECTION' => session('env.DB_CONNECTION') == config('database.default') ? 'old' : session('env.DB_CONNECTION'),
+            'DB_HOST' => session('env.DB_HOST') == (isset($db['host']) ? $db['host'] : '') ? 'old' : session('env.DB_HOST'),
+            'DB_PORT' => session('env.DB_PORT') == (isset($db['port']) ? $db['port'] : '') ? 'old' : session('env.DB_PORT'),
+            'DB_DATABASE' => $dbDatabase == (isset($db['database']) ? $db['database'] : '') ? 'old' : session('env.DB_DATABASE'),
+            'DB_USERNAME' => session('env.DB_USERNAME') == (isset($db['username']) ? $db['username'] : '') ? 'old' : session('env.DB_USERNAME'),
+            'DB_PASSWORD' => str_replace('"', '', session('env.DB_PASSWORD')) == (isset($db['password']) ? str_replace('"', '', $db['password']) : '') ? 'old' : str_replace('"', '', session('env.DB_PASSWORD')),
 
-        );
+        ];
 
         $count = 0;
 
@@ -139,7 +137,7 @@ class SetupController extends Controller
 
     public function lastStep(Request $request)
     {
-        ini_set('max_execution_time', 600); //600 seconds = 10 minutes
+        ini_set('max_execution_time', 600); // 600 seconds = 10 minutes
 
         try {
             $this->changeEnv([
@@ -158,19 +156,19 @@ class SetupController extends Controller
                 'DB_PASSWORD' => session('env.DB_PASSWORD'),
             ]);
 
-           // 1) Clear any old config cache, then re-cache
+            // 1) Clear any old config cache, then re-cache
             Artisan::call('config:clear');
             Artisan::call('config:cache');
 
             // 2) Drop all tables, re-run all your app migrations + seeders
             Artisan::call('migrate:fresh', [
                 '--force' => true,
-                '--seed'  => true,
+                '--seed' => true,
             ]);
 
             // 3) Run Passport’s migrations (they live in vendor/)
             Artisan::call('migrate', [
-                '--path'  => 'vendor/laravel/passport/database/migrations',
+                '--path' => 'vendor/laravel/passport/database/migrations',
                 '--force' => true,
             ]);
 
@@ -181,7 +179,6 @@ class SetupController extends Controller
 
             // 5) Mark the install as done
             Storage::disk('public')->put('installed', 'OK');
-
 
         } catch (\Exception $e) {
 
@@ -199,6 +196,7 @@ class SetupController extends Controller
         Artisan::call('key:generate', ['--show' => true]);
         $output = (Artisan::output());
         $output = substr($output, 0, -2);
+
         return $output;
     }
 
@@ -210,13 +208,12 @@ class SetupController extends Controller
         $request->session()->put('env.APP_DEBUG', $request->app_debug);
 
         if (strlen($request->app_name) > 0) {
-            $request->session()->put('env.APP_NAME', '"' . $request->app_name . '"');
+            $request->session()->put('env.APP_NAME', '"'.$request->app_name.'"');
         }
 
         if (strlen($request->app_key) > 0) {
             $request->session()->put('env.APP_KEY', $request->app_key);
         }
-
 
         return $this->viewStep2();
     }
@@ -225,7 +222,7 @@ class SetupController extends Controller
     {
 
         if (strlen($request->db_password) > 0) {
-            $request->session()->put('env.DB_PASSWORD', '"' . $request->db_password . '"');
+            $request->session()->put('env.DB_PASSWORD', '"'.$request->db_password.'"');
         }
         $request->session()->put('env.DB_CONNECTION', $request->db_connection);
         $request->session()->put('env.DB_HOST', $request->db_host);
@@ -240,5 +237,4 @@ class SetupController extends Controller
 
         return $this->viewStep3();
     }
-
 }

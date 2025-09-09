@@ -11,7 +11,6 @@ class StoreSetting extends Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'logo'
+        'logo',
     ];
-
 }
