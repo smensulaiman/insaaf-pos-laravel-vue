@@ -25,14 +25,14 @@
             </router-link>
           </li>
           <li
-            v-show="currentUserPermissions 
+            v-show="currentUserPermissions
             && (currentUserPermissions.includes('products_add')
-            || currentUserPermissions.includes('products_view') 
-            || currentUserPermissions.includes('opening_stock_import') 
+            || currentUserPermissions.includes('products_view')
+            || currentUserPermissions.includes('opening_stock_import')
             || currentUserPermissions.includes('barcode_view')
-             || currentUserPermissions.includes('brand') 
-             || currentUserPermissions.includes('unit')  
-             || currentUserPermissions.includes('count_stock')  
+             || currentUserPermissions.includes('brand')
+             || currentUserPermissions.includes('unit')
+             || currentUserPermissions.includes('count_stock')
              || currentUserPermissions.includes('category'))"
             @mouseenter="toggleSubMenu"
             class="nav-item"
@@ -47,7 +47,7 @@
             <div class="triangle"></div>
           </li>
           <li
-            v-show="currentUserPermissions 
+            v-show="currentUserPermissions
               && (currentUserPermissions.includes('adjustment_view')
               || currentUserPermissions.includes('adjustment_add'))"
             @mouseenter="toggleSubMenu"
@@ -63,11 +63,11 @@
             <div class="triangle"></div>
           </li>
 
-        
 
-         
+
+
           <li
-            v-show="currentUserPermissions && (currentUserPermissions.includes('Quotations_view') 
+            v-show="currentUserPermissions && (currentUserPermissions.includes('Quotations_view')
                       || currentUserPermissions.includes('Quotations_add'))"
             @mouseenter="toggleSubMenu"
             class="nav-item"
@@ -82,7 +82,7 @@
             <div class="triangle"></div>
           </li>
           <li
-            v-show="currentUserPermissions && (currentUserPermissions.includes('Purchases_view') 
+            v-show="currentUserPermissions && (currentUserPermissions.includes('Purchases_view')
                         || currentUserPermissions.includes('Purchases_add'))"
             @mouseenter="toggleSubMenu"
             class="nav-item"
@@ -97,7 +97,7 @@
             <div class="triangle"></div>
           </li>
           <li
-            v-show="currentUserPermissions && (currentUserPermissions.includes('Sales_view') 
+            v-show="currentUserPermissions && (currentUserPermissions.includes('Sales_view')
                         || currentUserPermissions.includes('Sales_add')
                         || currentUserPermissions.includes('Pos_view')
                         || currentUserPermissions.includes('shipment'))"
@@ -152,7 +152,7 @@
                      || currentUserPermissions.includes('holiday')
                      || currentUserPermissions.includes('payroll')
                      )"
-                     
+
             @mouseenter="toggleSubMenu"
             :class="{ active: selectedParentMenu == 'hrm' }"
             class="nav-item"
@@ -218,7 +218,7 @@
 
 
           <li
-            v-show="currentUserPermissions && (currentUserPermissions.includes('Customers_view') 
+            v-show="currentUserPermissions && (currentUserPermissions.includes('Customers_view')
                         ||currentUserPermissions.includes('Suppliers_view')
                         ||currentUserPermissions.includes('users_view'))"
             @mouseenter="toggleSubMenu"
@@ -259,10 +259,10 @@
               <span class="nav-text">{{$t('Tasks')}}</span>
             </router-link>
           </li>
-         
+
             <!-- //import component Modules -->
-         
-            <li v-for="ComponentModule in getallmodules" 
+
+            <li v-for="ComponentModule in getallmodules"
                 v-show="currentUserPermissions && currentUserPermissions.includes(ComponentModule.permission)"
                 @mouseenter="toggleSubMenu"
                 class="nav-item" >
@@ -274,11 +274,11 @@
                   <span>Addon</span>
                 </div>
               </li>
-            
-         
+
+
 
           <li
-            v-show="currentUserPermissions && (currentUserPermissions.includes('setting_system') 
+            v-show="currentUserPermissions && (currentUserPermissions.includes('setting_system')
                         || currentUserPermissions.includes('sms_settings')
                         || currentUserPermissions.includes('notification_template')
                         || currentUserPermissions.includes('pos_settings')
@@ -287,10 +287,10 @@
                         || currentUserPermissions.includes('module_settings')
                         || currentUserPermissions.includes('payment_gateway')
                         || currentUserPermissions.includes('mail_settings')
-                        || currentUserPermissions.includes('warehouse') 
+                        || currentUserPermissions.includes('warehouse')
                         || currentUserPermissions.includes('backup')
-                        || currentUserPermissions.includes('payment_methods')  
-                        || currentUserPermissions.includes('currency') 
+                        || currentUserPermissions.includes('payment_methods')
+                        || currentUserPermissions.includes('currency')
                         || currentUserPermissions.includes('permissions_view'))"
             @mouseenter="toggleSubMenu"
             :class="{ active: selectedParentMenu == 'settings' }"
@@ -306,8 +306,8 @@
           </li>
 
           <li
-            v-show="currentUserPermissions && 
-                     (currentUserPermissions.includes('Reports_payments_Sales') 
+            v-show="currentUserPermissions &&
+                     (currentUserPermissions.includes('Reports_payments_Sales')
                      || currentUserPermissions.includes('Reports_payments_Purchases')
                      || currentUserPermissions.includes('Reports_payments_Sale_Returns')
                      || currentUserPermissions.includes('Reports_payments_purchase_Return')
@@ -316,9 +316,9 @@
                      || currentUserPermissions.includes('inventory_valuation')
                      || currentUserPermissions.includes('expenses_report')
                      || currentUserPermissions.includes('deposits_report')
-                     || currentUserPermissions.includes('Reports_purchase') 
+                     || currentUserPermissions.includes('Reports_purchase')
                      || currentUserPermissions.includes('Reports_quantity_alerts')
-                     || currentUserPermissions.includes('Reports_sales') 
+                     || currentUserPermissions.includes('Reports_sales')
                      || currentUserPermissions.includes('product_sales_report')
                      || currentUserPermissions.includes('product_purchases_report')
                      || currentUserPermissions.includes('Reports_suppliers')
@@ -343,8 +343,8 @@
               <span class="nav-text">{{$t('Reports')}}</span>
             </a>
             <div class="triangle"></div>
-          </li>    
-                
+          </li>
+
         </ul>
       </div>
     </vue-perfect-scrollbar>
@@ -629,7 +629,7 @@
               <span class="item-name">{{$t('Import_Purchases')}}</span>
             </router-link>
           </li>
-          
+
         </ul>
 
         <ul
@@ -675,9 +675,9 @@
           </li>
         </ul>
 
-      
 
-       
+
+
       <!-- hrm -->
         <ul
           class="childNav d-none"
@@ -765,10 +765,10 @@
                   <span class="item-name">{{$t('Leave_type')}}</span>
                 </router-link>
               </li>
-              
+
             </ul>
           </li>
-           
+
           <li
             class="nav-item"
             v-if="currentUserPermissions && currentUserPermissions.includes('holiday')"
@@ -951,7 +951,7 @@
             </router-link>
           </li>
 
-          
+
 
           <li
             class="nav-item"
@@ -980,7 +980,7 @@
               <span class="item-name">{{$t('Currencies')}}</span>
             </router-link>
           </li>
-         
+
           <li
             class="nav-item"
             v-if="currentUserPermissions && currentUserPermissions.includes('backup')"
@@ -1000,7 +1000,7 @@
         >
           <li
             v-if="currentUserPermissions &&
-             (currentUserPermissions.includes('Reports_payments_Purchases') 
+             (currentUserPermissions.includes('Reports_payments_Purchases')
            || currentUserPermissions.includes('Reports_payments_Sales')
            || currentUserPermissions.includes('Reports_payments_Sale_Returns')
            || currentUserPermissions.includes('Reports_payments_purchase_Return'))"
@@ -1253,128 +1253,125 @@
               <span class="item-name">{{$t('Error_Logs')}}</span>
             </router-link>
           </li>
-
-
-          
-
-
         </ul>
       </div>
     </vue-perfect-scrollbar>
     <div
       @click="removeOverlay()"
       class="sidebar-overlay"
-      :class="{ open: getSideBarToggleProperties.isSecondarySideNavOpen }"
-    ></div>
+      :class="{ open: getSideBarToggleProperties.isSecondarySideNavOpen }"></div>
   </div>
   <!--=============== Left side End ================-->
 </template>
 
 <script>
 import Topnav from "./TopNav";
-import { isMobile } from "mobile-device-detect";
+import {isMobile} from "mobile-device-detect";
 
-import { mapGetters, mapActions } from "vuex";
+import {mapGetters, mapActions} from "vuex";
 
 export default {
-  components: {
-    Topnav
-  },
-
-  data() {
-    return {
-      isDisplay: true,
-      isMenuOver: false,
-      isStyle: true,
-      selectedParentMenu: "",
-      isMobile,
-    };
-  },
-  mounted() {
-    this.toggleSelectedParentMenu();
-    window.addEventListener("resize", this.handleWindowResize);
-    document.addEventListener("click", this.returnSelectedParentMenu);
-    this.handleWindowResize();
-  },
-
-  beforeDestroy() {
-    document.removeEventListener("click", this.returnSelectedParentMenu);
-    window.removeEventListener("resize", this.handleWindowResize);
-  },
-
-  computed: {
-    ...mapGetters(["getSideBarToggleProperties", "currentUserPermissions","getallmodules"])
-  },
-
-  methods: {
-    ...mapActions([
-      "changeSecondarySidebarProperties",
-      "changeSecondarySidebarPropertiesViaMenuItem",
-      "changeSecondarySidebarPropertiesViaOverlay",
-      "changeSidebarProperties"
-    ]),
-
-    handleWindowResize() {
-      if (window.innerWidth <= 1200) {
-        if (this.getSideBarToggleProperties.isSideNavOpen) {
-          this.changeSidebarProperties();
-        }
-        if (this.getSideBarToggleProperties.isSecondarySideNavOpen) {
-          this.changeSecondarySidebarProperties();
-        }
-      } else {
-        if (!this.getSideBarToggleProperties.isSideNavOpen) {
-          this.changeSidebarProperties();
-        }
-      }
-    },
-    toggleSelectedParentMenu() {
-      const currentParentUrl = this.$route.path
-        .split("/")
-        .filter(x => x !== "")[1];
-      if (currentParentUrl !== undefined || currentParentUrl !== null) {
-        this.selectedParentMenu = currentParentUrl.toLowerCase();
-      } else {
-        this.selectedParentMenu = "dashboard";
-      }
-    },
-    toggleSubMenu(e) {
-      let hasSubmenu = e.target.dataset.submenu;
-      let parent = e.target.dataset.item;
-
-      if (hasSubmenu) {
-        this.selectedParentMenu = parent;
-
-        this.changeSecondarySidebarPropertiesViaMenuItem(true);
-      } else {
-        this.selectedParentMenu = parent;
-        this.changeSecondarySidebarPropertiesViaMenuItem(false);
-      }
+    components: {
+        Topnav
     },
 
-    removeOverlay() {
-      this.changeSecondarySidebarPropertiesViaOverlay();
-      if (window.innerWidth <= 1200) {
-        this.changeSidebarProperties();
-      }
-      this.toggleSelectedParentMenu();
+    data() {
+        return {
+            isDisplay: true,
+            isMenuOver: false,
+            isStyle: true,
+            selectedParentMenu: "",
+            isMobile,
+        };
     },
-    returnSelectedParentMenu() {
-      if (!this.isMenuOver) {
+    mounted() {
         this.toggleSelectedParentMenu();
-      }
+        window.addEventListener("resize", this.handleWindowResize);
+        document.addEventListener("click", this.returnSelectedParentMenu);
+        this.handleWindowResize();
     },
 
-    toggleSidebarDropdwon(event) {
-      let dropdownMenus = this.$el.querySelectorAll(".dropdown-sidemenu.open");
+    beforeDestroy() {
+        document.removeEventListener("click", this.returnSelectedParentMenu);
+        window.removeEventListener("resize", this.handleWindowResize);
+    },
 
-      event.currentTarget.classList.toggle("open");
+    computed: {
+        ...mapGetters(["getSideBarToggleProperties", "currentUserPermissions", "getallmodules"])
+    },
 
-      dropdownMenus.forEach(dropdown => {
-        dropdown.classList.remove("open");
-      });
+    methods: {
+        ...mapActions([
+            "changeSecondarySidebarProperties",
+            "changeSecondarySidebarPropertiesViaMenuItem",
+            "changeSecondarySidebarPropertiesViaOverlay",
+            "changeSidebarProperties"
+        ]),
+
+        handleWindowResize() {
+            if (window.innerWidth <= 1200) {
+                if (this.getSideBarToggleProperties.isSideNavOpen) {
+                    this.changeSidebarProperties();
+                }
+                if (this.getSideBarToggleProperties.isSecondarySideNavOpen) {
+                    this.changeSecondarySidebarProperties();
+                }
+            } else {
+                if (!this.getSideBarToggleProperties.isSideNavOpen) {
+                    this.changeSidebarProperties();
+                }
+            }
+        },
+
+        toggleSelectedParentMenu() {
+            const currentParentUrl = this.$route.path
+                .split("/")
+                .filter(x => x !== "")[1];
+            if (currentParentUrl !== undefined || currentParentUrl !== null) {
+                this.selectedParentMenu = currentParentUrl.toLowerCase();
+            } else {
+                this.selectedParentMenu = "dashboard";
+            }
+        },
+
+        toggleSubMenu(e) {
+            let hasSubmenu = e.target.dataset.submenu;
+            let parent = e.target.dataset.item;
+
+            if (hasSubmenu) {
+                this.selectedParentMenu = parent;
+
+                this.changeSecondarySidebarPropertiesViaMenuItem(true);
+            } else {
+                this.selectedParentMenu = parent;
+                this.changeSecondarySidebarPropertiesViaMenuItem(false);
+            }
+        },
+
+        removeOverlay() {
+            this.changeSecondarySidebarPropertiesViaOverlay();
+            if (window.innerWidth <= 1200) {
+                this.changeSidebarProperties();
+            }
+            this.toggleSelectedParentMenu();
+        },
+
+        returnSelectedParentMenu() {
+            if (!this.isMenuOver) {
+                this.toggleSelectedParentMenu();
+            }
+        },
+
+        toggleSidebarDropdwon(event) {
+            let dropdownMenus = this.$el.querySelectorAll(".dropdown-sidemenu.open");
+
+            event.currentTarget.classList.toggle("open");
+
+            dropdownMenus.forEach(dropdown => {
+                dropdown.classList.remove("open");
+            });
+        }
     }
-  }
 };
 </script>
 

@@ -1,8 +1,6 @@
 <template>
   <div v-if="Loading">
     <router-view></router-view>
-
-
     <customizer v-if="show_language && !isPosPage"></customizer>
   </div>
 </template>

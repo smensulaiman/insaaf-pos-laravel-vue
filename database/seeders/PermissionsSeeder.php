@@ -14,10 +14,11 @@ class PermissionsSeeder extends Seeder
     {
         // Insert some stuff
         DB::table('permissions')->insert(
-            [[
-                'id' => 1,
-                'name' => 'users_view',
-            ],
+            [
+                [
+                    'id' => 1,
+                    'name' => 'users_view',
+                ],
                 [
                     'id' => 2,
                     'name' => 'users_edit',
@@ -612,7 +613,6 @@ class PermissionsSeeder extends Seeder
                     'id' => 147,
                     'name' => 'opening_stock_import',
                 ],
-
             ]
         );
     }

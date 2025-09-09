@@ -33,7 +33,6 @@ class SettingSeeder extends Seeder
                 'page_title_suffix' => 'Ultimate Inventory With POS',
                 'favicon' => 'favicon.ico',
             ]
-
         );
     }
 }

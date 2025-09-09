@@ -14,13 +14,13 @@ class RoleSeeder extends Seeder
     {
         // Insert some stuff
         DB::table('roles')->insert(
-            [[
+            [
                 'id' => 1,
-                'name' => 'Owner',
-                'label' => 'Owner',
+                'name' => 'Super Admin',
+                'label' => 'Super Admin',
                 'status' => 1,
                 'description' => 'Owner',
-            ]]
+            ]
         );
     }
 }
