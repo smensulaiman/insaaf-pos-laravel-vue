@@ -1,0 +1,70 @@
+# Laravel
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.phpunit.result.cache
+Homestead.yaml
+Homestead.json
+/.vagrant
+/.idea
+/.phpunit.cache
+/.env.backup
+
+# Laravel Telescope (optional)
+/storage/telescope
+
+# Laravel Ignition (optional)
+ignition-error-page.html
+
+# Laravel Mix
+/public/hot
+/public/mix-manifest.json
+
+# NPM / Yarn / Vite
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+vite.config.js
+vite.config.ts
+
+# Composer
+composer.lock
+
+# Debugbar
+/storage/debugbar
+
+# Vite cache
+/.vite
+
+# IDEs and editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+coverage.json
+phpcov/
+clover.xml
+*.cover
+*.log
+
+# Optional: Tests/coverage
+/tests/coverage
+/tests/_output
+
+# Optional: Docker-related
+docker-compose.override.yml
+.env.docker
+docker-compose.yml
+
+# Optional: Laravel Sail
+sail
