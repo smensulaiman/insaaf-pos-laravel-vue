@@ -93,7 +93,7 @@
                       <div class="input-group">
                          <!-- Input group prepend -->
                          <div class="input-group-prepend">
-                          <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
+                          <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
                         </div>
                         <b-form-input
                           :class="{'is-invalid': !!errors.length}"

@@ -84,7 +84,7 @@
 
                   <div id="autocomplete" class="autocomplete">
                     <div class="input-with-icon">
-                      <img src="/assets_setup/scan.png.bk" alt="Scan" class="scan-icon" @click="showModal">
+                      <img src="/assets_setup/scan.png" alt="Scan" class="scan-icon" @click="showModal">
                     <input
                      :placeholder="$t('Scan_Search_Product_by_Code_Name')"
                        @input='e => search_input = e.target.value'
