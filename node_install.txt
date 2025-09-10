@@ -1,0 +1,20 @@
+If you're still running into issues, I recommend using nvm (Node Version Manager), which will allow you to easily manage multiple versions of Node.js without conflicts.
+
+To install nvm:
+
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+source ~/.bashrc
+
+
+After that, you can install Node.js 14 via nvm:
+
+nvm install 14
+nvm use 14
+
+
+Now, when you check your version:
+
+node -v
+
+
+It should show v14.x.x.
