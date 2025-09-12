@@ -1,6 +1,7 @@
 # Laravel
 /vendor
 /node_modules
+/public/js/bundle
 /public/storage
 /storage
 /storage/*.key
